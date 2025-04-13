@@ -1,0 +1,43 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "map.json",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "map.json": {
+            "scale": 2,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 145.5,
+                "y": 193.75
+            }
+        },
+        "map.json#Overworld_Tileset": {
+            "scaleInDock": 1.5
+        },
+        "map.json#water_tile_anim_strip_8": {
+            "scaleInDock": 1
+        }
+    },
+    "last.imagePath": "C:/Dev/brandonewSDL/brandonewSDL/assets/Tiles_(animated)/Overworld",
+    "map.lastUsedFormat": "json",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "openFiles": [
+        "map.json"
+    ],
+    "project": "untitled.tiled-project",
+    "recentFiles": [
+        "map.json"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

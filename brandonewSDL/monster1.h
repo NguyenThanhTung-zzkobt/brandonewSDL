@@ -1,0 +1,22 @@
+#pragma once
+#include "entity.h"
+#include "player.h"
+#include "camera.h"
+#include "battle.h"
+
+class Monster1 {
+public:
+	SDL_FPoint position;
+	float detection_radius;
+	bool triggered;
+	SDL_Texture* texture;
+	Entity entity;
+
+
+	void render(SDL_Renderer* renderer);
+	void update();
+	void cleanup();
+};
+
+void init_monster1(SDL_Renderer* renderer);
+extern Monster1 Monster;
