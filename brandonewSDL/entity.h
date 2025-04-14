@@ -14,6 +14,8 @@ typedef struct {
 	int current_hp;
 	int attack_power;
 
+	float displayed_hp;
+
 	void (*cleanup)(void);
 	void(*handle_events)(SDL_Event*);
 	void(*update)(float);

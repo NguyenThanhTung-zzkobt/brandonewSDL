@@ -4,7 +4,7 @@
 static SDL_Texture* player_texture = NULL;
 static SDL_FRect sprite_portion = { 17, 14 , 15 ,18 };
 
-static SpriteSize sprite_size{ 15, 18 };
+static SpriteSize sprite_size{ 15, 15 };
 
 
 Player::Player() {
@@ -12,11 +12,16 @@ Player::Player() {
 	position.y = 107;
 	velocity_x = 0;
 	velocity_y = 0;
+	max_hp = 100;
+	
+	current_hp = 100;
+	attack_power = 20;
 	texture = nullptr;
 }
-Player player;
+Player PLAYER;
 
-//Position player_position = { 0, 0 };
+
+
 static int movement_speed = 30;
 
 void Player::setMap(Map* map) {
@@ -78,41 +83,41 @@ void Player::update(float delta_time) {
 
 	// Vertical movement
 	if (keyboard_state[SDL_SCANCODE_W]) {
-		float new_y = player.position.y - movement_speed * delta_time;
+		float new_y = PLAYER.position.y - movement_speed * delta_time;
 		// Check collision on both axes (horizontal and vertical)
-		if (!player.checkCollision(player.position.x, new_y)) {
-			player.position.y = new_y;
+		if (!PLAYER.checkCollision(PLAYER.position.x, new_y)) {
+			PLAYER.position.y = new_y;
 			sprite_portion = { 17, 14 , 15 ,18 };
 		}
 	}
 	if (keyboard_state[SDL_SCANCODE_S]) {
-		float new_y = player.position.y + movement_speed * delta_time;
+		float new_y = PLAYER.position.y + movement_speed * delta_time;
 		// Check collision on both axes (horizontal and vertical)
-		if (!player.checkCollision(player.position.x, new_y)) {
-			player.position.y = new_y;
+		if (!PLAYER.checkCollision(PLAYER.position.x, new_y)) {
+			PLAYER.position.y = new_y;
 			sprite_portion = { 17, 14 , 15 ,18 };
 		}
 	}
 
 	// Horizontal movement
 	if (keyboard_state[SDL_SCANCODE_A]) {
-		float new_x = player.position.x - movement_speed * delta_time;
+		float new_x = PLAYER.position.x - movement_speed * delta_time;
 		// Check collision on both axes (horizontal and vertical)
-		if (!player.checkCollision(new_x, player.position.y)) {
-			player.position.x = new_x;
+		if (!PLAYER.checkCollision(new_x, PLAYER.position.y)) {
+			PLAYER.position.x = new_x;
 			sprite_portion = { 17, 14 , 15 ,18 };
 		}
 	}
 	if (keyboard_state[SDL_SCANCODE_D]) {
-		float new_x = player.position.x + movement_speed * delta_time;
+		float new_x = PLAYER.position.x + movement_speed * delta_time;
 		// Check collision on both axes (horizontal and vertical)
-		if (!player.checkCollision(new_x, player.position.y)) {
-			player.position.x = new_x;
+		if (!PLAYER.checkCollision(new_x, PLAYER.position.y)) {
+			PLAYER.position.x = new_x;
 			sprite_portion = { 17, 14 , 15 ,18 };
 		}
 	}
-	camera.x = player.position.x - camera.w / 2;
-	camera.y = player.position.y - camera.h / 2;
+	camera.x = PLAYER.position.x - camera.w / 2;
+	camera.y = PLAYER.position.y - camera.h / 2;
 
 	if (camera.x < 0) camera.x = 0;
 	if (camera.y < 0) camera.y = 0;
@@ -124,25 +129,25 @@ void Player::render(SDL_Renderer* renderer) {
 	float final_x = camera.w / 2 - sprite_size.w / 2;
 	float final_y = camera.h / 2 - sprite_size.h / 2;
 
-	if (camera.x <= 0) final_x = player.position.x - sprite_size.w / 2;
-	if (camera.y <= 0) final_y = player.position.y - sprite_size.h / 2;
+	if (camera.x <= 0) final_x =PLAYER.position.x - sprite_size.w / 2;
+	if (camera.y <= 0) final_y = PLAYER.position.y - sprite_size.h / 2;
 
-	if (camera.x + camera.w >= 420) final_x = player.position.x - (420 - camera.w) - sprite_size.w / 2;
-	if (camera.y + camera.h >= 240) final_y = player.position.y - (240 - camera.h) - sprite_size.h / 2;
+	if (camera.x + camera.w >= 420) final_x = PLAYER.position.x - (420 - camera.w) - sprite_size.w / 2;
+	if (camera.y + camera.h >= 240) final_y = PLAYER.position.y - (240 - camera.h) - sprite_size.h / 2;
 
-	SDL_FRect player_rect = { 
-		player.position.x - camera.x
-		, player.position.y - camera.y 
+	SDL_FRect PLAYER_rect = { 
+		PLAYER.position.x - camera.x
+		, PLAYER.position.y - camera.y 
 		, sprite_size.w
 		, sprite_size.h 
 	};
-	SDL_RenderTexture(renderer, player.texture, &sprite_portion, &player_rect);
-	SDL_SetTextureScaleMode(player.texture, SDL_SCALEMODE_LINEAR);
+	SDL_RenderTexture(renderer, PLAYER.texture, &sprite_portion, &PLAYER_rect);
+	SDL_SetTextureScaleMode(PLAYER.texture, SDL_SCALEMODE_LINEAR);
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-	float left = (float)(player.position.x / TILE_WIDTH);
-	float right = (float)((player.position.x + sprite_size.w - 1) / TILE_WIDTH);
-	float top = (float)(player.position.y / TILE_HEIGHT);
-	float bottom = (float)((player.position.y + sprite_size.h - 1) / TILE_HEIGHT);
+	float left = (float)(PLAYER.position.x / TILE_WIDTH);
+	float right = (float)((PLAYER.position.x + sprite_size.w - 1) / TILE_WIDTH);
+	float top = (float)(PLAYER.position.y / TILE_HEIGHT);
+	float bottom = (float)((PLAYER.position.y + sprite_size.h - 1) / TILE_HEIGHT);
 
 	for (int y = top; y <= bottom; ++y) {
 		for (int x = left; x <= right; ++x) {
@@ -162,32 +167,42 @@ void Player::render(SDL_Renderer* renderer) {
 
 void init_player(SDL_Renderer* renderer) {
 
-	player.texture = IMG_LoadTexture(renderer, "assets/Char_Sprites/char_spritesheet.png");
-	if (!player.texture) {
+	PLAYER.texture = IMG_LoadTexture(renderer, "assets/Char_Sprites/char_spritesheet.png");
+	if (!PLAYER.texture) {
 		SDL_Log("Couldn't load player texture: %s", SDL_GetError());
 		return;
 	}
-	SDL_SetTextureScaleMode(player.texture, SDL_SCALEMODE_NEAREST);
-	Entity player_entity;
+	SDL_SetTextureScaleMode(PLAYER.texture, SDL_SCALEMODE_NEAREST);
 
-	player_entity.position = player.position;
-	player_entity.current_hp = player.hp;
+	PLAYER.entity.position = PLAYER.position;
+	PLAYER.entity.max_hp = PLAYER.max_hp;
+	
+	PLAYER.entity.current_hp = PLAYER.current_hp;
+	PLAYER.entity.displayed_hp = (float)PLAYER.current_hp;
+	SDL_Log("Init: current_hp = %d, displayed_hp = %.2f", PLAYER.entity.current_hp, PLAYER.entity.displayed_hp);
+	PLAYER.entity.attack_power = PLAYER.attack_power;
 
-	strncpy_s(player_entity.name , "player", MAX_NAME_LENGTH -1);
-	player_entity.update = [](float dt) {
-		player.update(dt);
+	strncpy_s(PLAYER.entity.name , "PLAYER", MAX_NAME_LENGTH -1);
+	PLAYER.entity.update = [](float dt) {
+		PLAYER.update(dt);
 		};
 
-	player_entity.render = [](SDL_Renderer* r) {
-		player.render(r);
+	PLAYER.entity.render = [](SDL_Renderer* r) {
+		PLAYER.render(r);
 		};
 
-	player_entity.cleanup = []() {
-		player.cleanup();
+	PLAYER.entity.cleanup = []() {
+		PLAYER.cleanup();
 		};
 
 
 
 
-	create_entity(player_entity);
+	create_entity(PLAYER.entity);
+}
+
+
+void Player::set_position(int x, int y) {
+	this->position.x = x;
+	this->position.y = y;
 }

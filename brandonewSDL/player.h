@@ -7,17 +7,20 @@
 class Map;
 
 
-class Player {
+class Player  {
 public:
 	SDL_FPoint position;
 	float velocity_x;
 	float velocity_y;
 	SDL_Texture* texture;
+	Entity entity;
 	Map* map_ref = nullptr;
 
-	int hp;
+	int max_hp;
 	int current_hp;
 	int attack_power;
+
+
 
 	Player();
 
@@ -26,6 +29,7 @@ public:
 	void setMap(Map* map);
 	bool checkCollision(float x ,float y);
 	void cleanup();
+	void set_position(int x, int y);
 public:
 };
 
@@ -56,6 +60,6 @@ typedef struct {
 //extern Position player_position;
 
 void init_player(SDL_Renderer* renderer);
-extern Player player;
+extern Player PLAYER;
 
 

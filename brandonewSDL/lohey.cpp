@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "monster1.h"
 #include "battle.h"
+#include "ui.h"
 #define TARGET_FPS 144
 #define TARGET_FRAME_TIME (1000/ TARGET_FPS)
 
@@ -35,20 +36,26 @@ void update() {
 	}
 
 	for (int i = 0; i < entities_count; i++) {
-		if (entities[i].update != nullptr ) {
+		if (entities[i].update != nullptr) {
 			entities[i].update(delta_time);
 		}
 	}
 }
 
-
 void render() {
+	if (is_in_battle()) {
+		// Black background during battle
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+
+		render_battle(renderer);
+		SDL_RenderPresent(renderer);
+		return;
+	}
+
+	// Regular game render
 	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 	SDL_RenderClear(renderer);
-
-	if (is_in_battle()) {
-		render_battle(renderer);
-	}
 
 	for (int i = 0; i < entities_count; i++) {
 		if (entities[i].render != nullptr && entities[i].render != (void(*)(SDL_Renderer*))0xcccccccccccccccc) {
@@ -69,6 +76,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 
 	SDL_Log("App started");
 
+	if (TTF_Init() == -1) {
+		SDL_Log("Failed to initialize SDL_ttf: %s", SDL_GetError());
+		return SDL_APP_FAILURE;
+	}
+
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
 		SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
@@ -84,9 +96,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 
 
 	mapInstance.init_map(renderer);
-	player.setMap(&mapInstance);
+	PLAYER.setMap(&mapInstance);
 	init_player(renderer);
-	if (!player.texture) {
+	if (!PLAYER.texture) {
 		SDL_Log("Couldn't load player texture: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
@@ -98,17 +110,25 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 {
+
+
 	if (event->type == SDL_EVENT_QUIT) {
 		SDL_Log("Event quit");
 		return SDL_APP_SUCCESS;
 	}
 
-
-
-		
+	if (is_in_battle()) {
+		update_battle_ui(event);
+	}
+	else {
+		// handle_events(event); // If needed
+	}
 
 	return SDL_APP_CONTINUE;
 }
+
+
+		
 
 
 SDL_AppResult SDL_AppIterate(void* appstate)
@@ -129,8 +149,9 @@ void SDL_AppQuit(void* appstate, SDL_AppResult result)
 			entities[i].cleanup();
 		}
 	}
-	if (player.texture) SDL_DestroyTexture(player.texture);
+	if (PLAYER.texture) SDL_DestroyTexture(PLAYER.texture);
 	if (renderer) SDL_DestroyRenderer(renderer);
 	if (window) SDL_DestroyWindow(window);
+	TTF_Quit();
 	SDL_EVENT_QUIT;
 }

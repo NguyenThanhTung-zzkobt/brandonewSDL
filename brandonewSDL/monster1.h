@@ -12,6 +12,9 @@ public:
 	SDL_Texture* texture;
 	Entity entity;
 
+	int current_hp;
+	int max_hp;
+	int attack_power;
 
 	void render(SDL_Renderer* renderer);
 	void update();

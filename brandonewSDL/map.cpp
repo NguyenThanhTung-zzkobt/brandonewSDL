@@ -212,21 +212,21 @@ void Map::processCollisionLayer(cute_tiled_layer_t* layer) {
 	}
 
 	collisionData.resize(layer->height);  // Rows (Y-axis)
-	SDL_Log("collisionData.resize to %zu rows", collisionData.size());
+	//SDL_Log("collisionData.resize to %zu rows", collisionData.size());
 	for (int i = 0; i < layer->height; ++i) {
 		collisionData[i].resize(layer->width);  // Columns (X-axis)
-		SDL_Log("Row %d resized to %zu columns", i, collisionData[i].size());
+		//SDL_Log("Row %d resized to %zu columns", i, collisionData[i].size());
 
 	}
 	for (int y = 0; y < layer->height; ++y) {
 		for (int x = 0; x < layer->width; ++x) {
 			int data = layer->data[y * layer->width + x]; // Read data from the Tiled layer
 			collisionData.at(y).at(x) = (data != 0) ? 1 :0	; // Assign it to our vector
-			SDL_Log("Tile (%d, %d) -> Collision Value: %d", x, y, data);
+			//SDL_Log("Tile (%d, %d) -> Collision Value: %d", x, y, data);
 		}
 	}
 
-	SDL_Log("Collision layer processed successfully, size: %d x %d", layer->width, layer->height);
+	//SDL_Log("Collision layer processed successfully, size: %d x %d", layer->width, layer->height);
 	if (!collisionData.empty()) {
 		SDL_Log("collisionData[0].size(): %zu", collisionData[0].size());
 	}

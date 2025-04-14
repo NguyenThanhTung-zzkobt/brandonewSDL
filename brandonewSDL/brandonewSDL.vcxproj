@@ -149,6 +149,7 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="map.cpp" />
+    <ClCompile Include="menu.cpp" />
     <ClCompile Include="monster1.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="lohey.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="entity.h" />
     <ClInclude Include="external\cute_tiled.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="monster1.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="ui.h" />
