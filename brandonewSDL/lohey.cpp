@@ -10,16 +10,15 @@
 #include "monster1.h"
 #include "battle.h"
 #include "ui.h"
+#include "menu.h"
+
 #define TARGET_FPS 144
 #define TARGET_FRAME_TIME (1000/ TARGET_FPS)
 
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
-typedef enum { STATE_FIRST_IMAGE, STATE_SECOND_IMAGE } AppState1;
-static AppState1 current_state = STATE_FIRST_IMAGE;
 static Map mapInstance;
-
 
 Uint64 last_tick = 0;
 Uint64 current_tick = 0;
@@ -30,39 +29,59 @@ void update() {
 	current_tick = SDL_GetTicks();
 	delta_time = (current_tick - last_tick) / 1000.0f;
 
-	if (is_in_battle()) {
-		update_battle(delta_time);
-		return;
-	}
-
-	for (int i = 0; i < entities_count; i++) {
-		if (entities[i].update != nullptr) {
-			entities[i].update(delta_time);
+	switch (current_game_state) {
+	case STATE_MAIN_MENU:
+		break;
+	case STATE_INIT_GAME:
+		mapInstance.init_map(renderer);
+		PLAYER.setMap(&mapInstance);
+		init_player(renderer);
+		init_monster1(renderer);
+		current_game_state = STATE_INGAME;
+		break;
+	case STATE_INGAME:
+		if (is_in_battle()) {
+			update_battle(delta_time);
 		}
+		else {
+			for (int i = 0; i < entities_count; i++) {
+				if (entities[i].update != nullptr) {
+					entities[i].update(delta_time);
+				}
+			}
+		}
+		break;
+	default:
+		break;
 	}
 }
 
 void render() {
-	if (is_in_battle()) {
-		// Black background during battle
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
-
-		render_battle(renderer);
-		SDL_RenderPresent(renderer);
-		return;
-	}
-
-	// Regular game render
-	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Default background
 	SDL_RenderClear(renderer);
 
-	for (int i = 0; i < entities_count; i++) {
-		if (entities[i].render != nullptr && entities[i].render != (void(*)(SDL_Renderer*))0xcccccccccccccccc) {
-			entities[i].render(renderer);
+	switch (current_game_state) {
+	case STATE_MAIN_MENU:
+		render_menu_ui(renderer);
+		break;
+	case STATE_INIT_GAME:
+		// Render initial game scene.  This might be a loading screen, or the initial map.
+		break;
+	case STATE_INGAME:
+		if (is_in_battle()) {
+			render_battle(renderer);
 		}
+		else {
+			for (int i = 0; i < entities_count; i++) {
+				if (entities[i].render != nullptr && entities[i].render != (void(*)(SDL_Renderer*))0xcccccccccccccccc) {
+					entities[i].render(renderer);
+				}
+			}
+		}
+		break;
+	default:
+		break;
 	}
-
 	SDL_RenderPresent(renderer);
 }
 
@@ -95,15 +114,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 
 
 
-	mapInstance.init_map(renderer);
-	PLAYER.setMap(&mapInstance);
-	init_player(renderer);
-	if (!PLAYER.texture) {
-		SDL_Log("Couldn't load player texture: %s", SDL_GetError());
-		return SDL_APP_FAILURE;
-	}
-	init_monster1(renderer);
-	SDL_SetRenderLogicalPresentation(renderer, 400 , 255, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+	init_menu_ui(renderer);
+	///SDL_SetRenderLogicalPresentation(renderer, 400 , 255, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	return SDL_APP_CONTINUE;
 }
@@ -117,13 +129,26 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 		return SDL_APP_SUCCESS;
 	}
 
-	if (is_in_battle()) {
-		update_battle_ui(event);
+	switch (current_game_state) {
+	case STATE_MAIN_MENU:
+		update_menu_ui(event); // Pass the event to the menu update function
+		break;
+	case STATE_INIT_GAME:
+		// Handle events specific to the initial game state (if any)
+		break;
+	case STATE_INGAME:
+		if (is_in_battle()) {
+			update_battle_ui(event);
+		}
+		else {
+			//  handle_events(event);  //  Original game event handling
+		}
+		break;
+	case STATE_QUIT:
+		return SDL_APP_SUCCESS;
+	default:
+		break;
 	}
-	else {
-		// handle_events(event); // If needed
-	}
-
 	return SDL_APP_CONTINUE;
 }
 
@@ -134,11 +159,13 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
 
-	update();
-	render();
-	app_wait_for_next_frame();
- 
-	return SDL_APP_CONTINUE;
+	if (current_game_state != STATE_QUIT) {
+		update();
+		render();
+		app_wait_for_next_frame();
+		return SDL_APP_CONTINUE;
+	}
+	return SDL_APP_SUCCESS;
 }
 
 

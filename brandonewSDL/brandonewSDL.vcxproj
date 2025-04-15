@@ -75,16 +75,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL2_mixer-2.8.1\SDL2_mixer-2.8.1\include;C:\Users\Admin\Downloads\Compressed\SDL_mixer-main\SDL_mixer-main\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL2_mixer-2.8.1\SDL2_mixer-2.8.1\include;C:\Users\Admin\Downloads\Compressed\SDL_mixer-main\SDL_mixer-main\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL2_mixer-2.8.1\SDL2_mixer-2.8.1\include;C:\Users\Admin\Downloads\Compressed\SDL_mixer-main\SDL_mixer-main\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL2_mixer-2.8.1\SDL2_mixer-2.8.1\include;C:\Users\Admin\Downloads\Compressed\SDL_mixer-main\SDL_mixer-main\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -168,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\Char_Sprites\char_spritesheet.png" />
+    <Image Include="assets\menu.png" />
     <Image Include="Overworld_Tileset.png" />
     <Image Include="water_tile_anim_strip_8.png" />
   </ItemGroup>

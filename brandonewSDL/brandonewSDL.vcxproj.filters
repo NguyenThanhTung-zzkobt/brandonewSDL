@@ -53,6 +53,9 @@
     <Image Include="water_tile_anim_strip_8.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\menu.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="entity.h">

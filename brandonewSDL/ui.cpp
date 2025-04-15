@@ -48,11 +48,11 @@ void render_battle_ui(SDL_Renderer* renderer) {
         SDL_Log("No font loaded. Cannot render battle UI.");
         return;
     }
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180); // dark background
-    SDL_FRect panel = { 10, 150, 200, 150 }; // adjust size as needed
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180); 
+    SDL_FRect panel = { 10, 150, 200, 150 }; 
     SDL_RenderFillRect(renderer, &panel);
     int x = 20;
-    int y = 160; // adjust depending on your screen size
+    int y = 160; 
 
     for (int i = 0; i < battle_ui.options.size(); ++i) {
         const std::string& option = battle_ui.options[i];
