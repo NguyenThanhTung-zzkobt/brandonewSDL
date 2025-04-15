@@ -75,16 +75,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL2_mixer-2.8.1\SDL2_mixer-2.8.1\include;C:\Users\Admin\Downloads\Compressed\SDL_mixer-main\SDL_mixer-main\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Dev\build-sdl3-2025-04-13\build-sdl3-2025-04-13\source\SDL_mixer\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL2_mixer-2.8.1\SDL2_mixer-2.8.1\include;C:\Users\Admin\Downloads\Compressed\SDL_mixer-main\SDL_mixer-main\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Dev\build-sdl3-2025-04-13\build-sdl3-2025-04-13\source\SDL_mixer\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL2_mixer-2.8.1\SDL2_mixer-2.8.1\include;C:\Users\Admin\Downloads\Compressed\SDL_mixer-main\SDL_mixer-main\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Dev\build-sdl3-2025-04-13\build-sdl3-2025-04-13\source\SDL_mixer\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL2_mixer-2.8.1\SDL2_mixer-2.8.1\include;C:\Users\Admin\Downloads\Compressed\SDL_mixer-main\SDL_mixer-main\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Admin\Downloads\Compressed\SDL-release-3.2.8\SDL-release-3.2.8\include;C:\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\include;C:\Users\Admin\Downloads\Compressed\SDL3_ttf-3.2.2\SDL3_ttf-3.2.2\include;C:\Dev\build-sdl3-2025-04-13\build-sdl3-2025-04-13\source\SDL_mixer\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -162,6 +162,15 @@
     <ProjectReference Include="..\..\..\Users\Admin\Downloads\Compressed\SDL3_image-3.2.4\SDL3_image-3.2.4\VisualC\SDL_image.vcxproj">
       <Project>{2bd5534e-00e2-4bea-ac96-d9a92ea24696}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\build-sdl3-2025-04-13\build-sdl3-2025-04-13\source\SDL_mixer\VisualC\native_midi\native_midi.vcxproj">
+      <Project>{ebda67ca-4a23-4f22-bfbc-b8dbe0580d4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\build-sdl3-2025-04-13\build-sdl3-2025-04-13\source\SDL_mixer\VisualC\SDL_mixer.vcxproj">
+      <Project>{f7e944b3-0815-40cd-b3e4-90b2a15b0e33}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\build-sdl3-2025-04-13\build-sdl3-2025-04-13\source\SDL_mixer\VisualC\timidity\timidity.vcxproj">
+      <Project>{b162b6f1-e876-4d5f-a1f6-e3a6dc2f4a2c}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\SDL3_ttf-3.2.0\SDL3_ttf-3.2.0\VisualC\SDL_ttf.vcxproj">
       <Project>{dddbd07d-dc76-4af6-8d02-3e2deb6ee255}</Project>
     </ProjectReference>
@@ -187,6 +196,9 @@
     <None Include="tiled\map.json" />
     <None Include="tiled\untitled.tiled-project" />
     <None Include="tiled\untitled.tiled-session" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\OCTOPATH TRAVELER - opening menu-.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

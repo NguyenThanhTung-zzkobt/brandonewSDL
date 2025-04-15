@@ -1,13 +1,35 @@
-#include "menu.h"
+﻿#include "menu.h"
 
 firstState current_game_state = STATE_MAIN_MENU;
 
 menuUI menu_ui;
 
-
+static SDL_Surface* background_surface;
 static SDL_Texture* background_texture = nullptr;
-static std::vector<std::string> selecting_options = { "NEW GAME" ,"CONTINUE" , "OPTIONS" , "CREDITS", "EXIT" };
+static Mix_Music* music = nullptr;
 
+static std::vector<std::string> selecting_options = { "NEW GAME" ,"CONTINUE" , "OPTIONS" , "CREDITS", "EXIT" };
+static std::vector<std::string> selecting_options_option = { "FULLSCREEN", "CHANGE VOLUME" };
+
+bool fullscreen_enabled = false;
+int options_select = 0;
+
+
+int volume_level = 100; 
+SDL_Rect volume_bar_rect;
+int volume_bar_width = 200;
+int volume_bar_height = 20;
+int volume_bar_x_offset = 200;
+int volume_bar_y_offset = 30;
+bool in_volume_sub_menu = false;
+
+
+int options_sub_select = 0; 
+bool in_options_sub_menu = false;
+SDL_Rect fullscreen_checkbox_rect; 
+
+
+SDL_AudioSpec audiospec = {};
 int menu_select = 0;
 
 TTF_Font* g_menu_font = nullptr;
@@ -30,11 +52,15 @@ void init_menu_ui(SDL_Renderer* renderer) {
 
     }
 
-    SDL_Surface* background_surface = IMG_Load("assets/menu.png");
+    background_surface = IMG_Load("assets/menu.png");
     if (!background_surface) {
         SDL_Log("Failed to load background image %s", SDL_GetError());
     }
     else {
+        SDL_Log("Background surface loaded: width=%d, height=%d, format=%s, pitch=%d",
+            background_surface->w, background_surface->h,
+            SDL_GetPixelFormatName(background_surface->format),
+            background_surface->pitch);
         background_texture = SDL_CreateTextureFromSurface(renderer, background_surface);
         if (!background_texture) {
             SDL_Log("Failed to create texture from background: %s", SDL_GetError());
@@ -42,6 +68,28 @@ void init_menu_ui(SDL_Renderer* renderer) {
         SDL_Log(" created texture from background");
         SDL_DestroySurface(background_surface);
     }
+
+    audiospec.format = MIX_DEFAULT_FORMAT;
+    audiospec.channels = MIX_DEFAULT_CHANNELS;
+    audiospec.freq = MIX_DEFAULT_FREQUENCY;
+
+    if (!Mix_OpenAudio(0, &audiospec)) {
+        SDL_Log("Error opening audio: %s\n", SDL_GetError());
+        SDL_CloseAudioDevice(0);
+    }
+    else {
+        music = Mix_LoadMUS("assets/OCTOPATH TRAVELER - opening menu-.mp3");
+    }
+
+    if (!music) {
+        SDL_Log("Failed to load music: %s\n", SDL_GetError());
+    }
+    else {
+        if (Mix_PlayMusic(music, -1) == -1) {
+            SDL_Log("Failed to play music: %s\n", SDL_GetError());
+        }
+    }
+
 
     current_game_state = STATE_MAIN_MENU; 
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Menu UI Initialized.");
@@ -58,11 +106,10 @@ void render_menu_ui(SDL_Renderer* renderer) {
         SDL_GetCurrentRenderOutputSize(renderer, (int*)&dest.w, (int*)&dest.h);
         dest.x = 0;
         dest.y = 0;
-        SDL_RenderTexture(renderer, background_texture, NULL, &dest);
+        SDL_RenderTexture(renderer, background_texture, NULL, NULL);
+        
     }
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
-    SDL_FRect panel = { 10, 150, 200, 150 };
-    SDL_RenderFillRect(renderer, &panel);
+
     int x = 150;
     int y = 60;
     for (int i = 0; i < menu_ui.selecting_options.size(); ++i) {
@@ -96,6 +143,8 @@ void render_menu_ui(SDL_Renderer* renderer) {
     }
 }
 
+
+
 void update_menu_ui(const SDL_Event* event){
     if (event == nullptr) { //  Check if event is NULL
         return; //  IMPORTANT:  Return immediately if event is NULL
@@ -115,7 +164,11 @@ void update_menu_ui(const SDL_Event* event){
                 current_game_state = STATE_INIT_GAME;
 
             }
-            if (menu_ui.selecting_options[menu_ui.menu_select] == "EXIT") {
+            else if (menu_ui.selecting_options[menu_ui.menu_select] == "OPTIONS") {
+                current_game_state = STATE_OPTIONS_MENU;
+            }
+
+            else if(menu_ui.selecting_options[menu_ui.menu_select] == "EXIT") {
                 cleanup_menu_ui();
                 current_game_state = STATE_QUIT;
             }
@@ -128,11 +181,157 @@ void update_menu_ui(const SDL_Event* event){
 
 }
 
+void update_options_ui(SDL_Renderer* renderer, SDL_Window* window,const SDL_Event* event) {
+    if (event == nullptr) {
+        return;
+    }
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        switch (event->key.key) {
+        case SDLK_UP:
+            options_select = (options_select - 1 + selecting_options_option.size()) % selecting_options_option.size();
+            in_options_sub_menu = false; // Reset sub-menu when navigating options
+            options_sub_select = 0;
+            break;
+        case SDLK_DOWN:
+            options_select = (options_select + 1) % selecting_options_option.size();
+            in_options_sub_menu = false; // Reset sub-menu when navigating options
+            options_sub_select = 0;
+            break;
+        case SDLK_RIGHT:
+            if (options_select == 0 && !in_options_sub_menu) {
+                in_options_sub_menu = true;
+                options_sub_select = 0;
+            }
+            else if (options_select == 1) {
+                in_volume_sub_menu = true;
+                volume_level = SDL_min(100, volume_level + 5); 
+                Mix_VolumeMusic(volume_level * MIX_MAX_VOLUME / 100);
+            }
+            break;
+        case SDLK_LEFT:
+            if (options_select == 0) {
+                in_options_sub_menu = false;
+                options_sub_select = 0;
+                
+            }
+            else if (options_select == 1) {
+                in_volume_sub_menu = true;
+                volume_level = SDL_max(0, volume_level - 5); 
+                Mix_VolumeMusic(volume_level * MIX_MAX_VOLUME / 100);
+            }
+            break;
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+            if (options_select == 0 && in_options_sub_menu && options_sub_select == 0) {
+                fullscreen_enabled = !fullscreen_enabled;
+                SDL_SetWindowFullscreen(window, fullscreen_enabled ? true : 0);
+            }
+            else if (options_select == 1) {
+                in_volume_sub_menu = true;
+            }
+            break;
+        case SDLK_ESCAPE:
+            current_game_state = STATE_MAIN_MENU; // Go back to main menu on Escape
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 
 
 void cleanup_menu_ui() {
     if (menu_ui.font) {
         TTF_CloseFont(menu_ui.font);
         menu_ui.font = nullptr;
+    }
+    if (background_texture) {
+        SDL_DestroyTexture(background_texture);
+        background_texture = nullptr;
+    }
+    if (music) {
+        Mix_FreeMusic(music);
+        music = nullptr;
+    }
+    SDL_CloseAudioDevice(0); 
+    Mix_Quit();
+}
+
+void render_options_ui(SDL_Renderer* renderer) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    int x = 150;
+    int y = 100;
+
+    for (int i = 0; i < selecting_options_option.size(); ++i) {
+        const std::string& option = selecting_options_option[i];
+        SDL_Surface* surface = TTF_RenderText_Solid(menu_ui.font, option.c_str(), 0, menu_ui.text_color);
+        if (!surface) continue;
+
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (!texture) { SDL_DestroySurface(surface); continue; }
+
+        SDL_FRect dest = { (float)x, (float)(y + i * 30), (float)surface->w, (float)surface->h };
+
+        if (i == options_select) {
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 150);
+            SDL_FRect highlight = { dest.x - 5, dest.y - 2, dest.w + 10, dest.h + 4 };
+            SDL_RenderFillRect(renderer, &highlight);
+        }
+
+        SDL_RenderTexture(renderer, texture, NULL, &dest);
+        SDL_DestroyTexture(texture);
+        SDL_DestroySurface(surface);
+    }
+
+    // FULLSCREEN CHECKBOX
+    if (options_select == 0) {
+        int box_x = x + 200;
+        int box_y = y;
+        int box_size = 20;
+        SDL_FRect fullscreen_checkbox_rect = { (float)box_x, (float)box_y, (float)box_size, (float)box_size };
+
+        SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+        SDL_RenderRect(renderer, &fullscreen_checkbox_rect);
+
+        if (fullscreen_enabled) {
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+            SDL_FRect fill_rect = { fullscreen_checkbox_rect.x + 5, fullscreen_checkbox_rect.y + 5, fullscreen_checkbox_rect.w - 10, fullscreen_checkbox_rect.h - 10 };
+            SDL_RenderFillRect(renderer, &fill_rect);
+        }
+
+        if (in_options_sub_menu && options_sub_select == 0) {
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+            SDL_RenderRect(renderer, &fullscreen_checkbox_rect);
+        }
+    }
+
+    // ✅ VOLUME BAR - Always render if option selected
+    if (options_select == 1) {
+        int bar_x = x + volume_bar_x_offset;
+        int bar_y = y + (options_select * 30) + volume_bar_y_offset;
+        SDL_FRect volume_bar_rect = { (float)bar_x, (float)bar_y, (float)volume_bar_width, (float)volume_bar_height };
+
+        // Bar background
+        SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+        SDL_RenderFillRect(renderer, &volume_bar_rect);
+
+        // Volume fill
+        int fill_width = (int)((float)volume_level / 100.0f * volume_bar_width);
+        SDL_FRect fill_rect = { (float)bar_x, (float)bar_y, (float)fill_width, (float)volume_bar_height };
+        SDL_SetRenderDrawColor(renderer, 100, 200, 100, 255);
+        SDL_RenderFillRect(renderer, &fill_rect);
+
+        // Border
+        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+        SDL_RenderRect(renderer, &volume_bar_rect);
+
+        // Highlight if volume menu is active
+        if (in_volume_sub_menu) {
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+            SDL_RenderRect(renderer, &volume_bar_rect);
+        }
     }
 }

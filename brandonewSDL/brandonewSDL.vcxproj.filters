@@ -91,4 +91,7 @@
     <None Include="tiled\untitled.tiled-project" />
     <None Include="tiled\untitled.tiled-session" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\OCTOPATH TRAVELER - opening menu-.mp3" />
+  </ItemGroup>
 </Project>

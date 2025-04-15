@@ -14,7 +14,7 @@
 
 #define TARGET_FPS 144
 #define TARGET_FRAME_TIME (1000/ TARGET_FPS)
-
+#define MIX_FLAGS MIX_INIT_OGG
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
@@ -37,6 +37,7 @@ void update() {
 		PLAYER.setMap(&mapInstance);
 		init_player(renderer);
 		init_monster1(renderer);
+		cleanup_menu_ui();
 		current_game_state = STATE_INGAME;
 		break;
 	case STATE_INGAME:
@@ -57,13 +58,17 @@ void update() {
 }
 
 void render() {
-	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Default background
-	SDL_RenderClear(renderer);
+	if (current_game_state != STATE_MAIN_MENU) {
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Default background for other states
+		SDL_RenderClear(renderer);
+	}
 
 	switch (current_game_state) {
 	case STATE_MAIN_MENU:
 		render_menu_ui(renderer);
 		break;
+	case STATE_OPTIONS_MENU:
+		render_options_ui(renderer);
 	case STATE_INIT_GAME:
 		// Render initial game scene.  This might be a loading screen, or the initial map.
 		break;
@@ -115,7 +120,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 
 
 	init_menu_ui(renderer);
-	///SDL_SetRenderLogicalPresentation(renderer, 400 , 255, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+	SDL_SetRenderLogicalPresentation(renderer, 400 , 255, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	return SDL_APP_CONTINUE;
 }
@@ -132,6 +137,9 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 	switch (current_game_state) {
 	case STATE_MAIN_MENU:
 		update_menu_ui(event); // Pass the event to the menu update function
+		break;
+	case STATE_OPTIONS_MENU:
+		update_options_ui(renderer,window,event); // Pass the event to the menu update function
 		break;
 	case STATE_INIT_GAME:
 		// Handle events specific to the initial game state (if any)
