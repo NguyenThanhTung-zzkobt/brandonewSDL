@@ -12,7 +12,7 @@ enum firstState {
 	STATE_INIT_GAME,
 	STATE_INGAME,
 	STATE_OPTIONS_MENU,
-	STATE_OPTIONS_CREDITS,
+	STATE_CREDITS,
 	STATE_QUIT
 };
 
@@ -30,6 +30,8 @@ void update_menu_ui(const SDL_Event* event);
 void cleanup_menu_ui();
 void render_options_ui(SDL_Renderer* renderer);
 void update_options_ui(SDL_Renderer* renderer, SDL_Window* window, const SDL_Event* event);
+void render_credits_ui(SDL_Renderer* renderer);
+void update_credits_ui(const SDL_Event* event);
 
 extern int menu_select;
 extern firstState current_game_state;

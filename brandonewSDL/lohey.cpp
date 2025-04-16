@@ -69,6 +69,10 @@ void render() {
 		break;
 	case STATE_OPTIONS_MENU:
 		render_options_ui(renderer);
+		break;
+	case STATE_CREDITS:
+		render_credits_ui(renderer); 
+		break;
 	case STATE_INIT_GAME:
 		// Render initial game scene.  This might be a loading screen, or the initial map.
 		break;
@@ -140,6 +144,9 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 		break;
 	case STATE_OPTIONS_MENU:
 		update_options_ui(renderer,window,event); // Pass the event to the menu update function
+		break;
+	case STATE_CREDITS:
+		update_credits_ui(event);
 		break;
 	case STATE_INIT_GAME:
 		// Handle events specific to the initial game state (if any)

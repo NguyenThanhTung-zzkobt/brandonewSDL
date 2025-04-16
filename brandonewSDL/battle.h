@@ -1,7 +1,7 @@
 #pragma once
 #include "player.h"
-#include "monster1.h"
 
+class Monster1;
 
 enum BattleState {
 	BATTLE_NONE,
@@ -11,7 +11,7 @@ enum BattleState {
 };
 
 
-void start_battle(Entity* enemy);
+void start_battle(Monster1* enemy);
 void update_battle(float delta_time);
 void render_battle(SDL_Renderer* renderer);
 bool is_in_battle();
@@ -19,3 +19,4 @@ void end_battle_lost();
 void end_battle_won();
 void exit_battle();
 extern BattleState current_battle_state;
+extern Entity* current_enemy;

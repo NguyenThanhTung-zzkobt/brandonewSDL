@@ -19,8 +19,8 @@ int volume_level = 100;
 SDL_Rect volume_bar_rect;
 int volume_bar_width = 200;
 int volume_bar_height = 20;
-int volume_bar_x_offset = 200;
-int volume_bar_y_offset = 30;
+int volume_bar_x_offset = 175;
+int volume_bar_y_offset = 8;
 bool in_volume_sub_menu = false;
 
 
@@ -167,6 +167,9 @@ void update_menu_ui(const SDL_Event* event){
             else if (menu_ui.selecting_options[menu_ui.menu_select] == "OPTIONS") {
                 current_game_state = STATE_OPTIONS_MENU;
             }
+            else if (menu_ui.selecting_options[menu_ui.menu_select] == "CREDITS") {
+                current_game_state = STATE_CREDITS;
+            }
 
             else if(menu_ui.selecting_options[menu_ui.menu_select] == "EXIT") {
                 cleanup_menu_ui();
@@ -259,10 +262,18 @@ void cleanup_menu_ui() {
 }
 
 void render_options_ui(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
 
-    int x = 150;
+
+
+    if (background_texture) {
+        SDL_FRect dest;
+        SDL_GetCurrentRenderOutputSize(renderer, (int*)&dest.w, (int*)&dest.h);
+        dest.x = 0;
+        dest.y = 0;
+        SDL_RenderTexture(renderer, background_texture, NULL, NULL);
+    }
+
+    int x = 20;
     int y = 100;
 
     for (int i = 0; i < selecting_options_option.size(); ++i) {
@@ -332,6 +343,76 @@ void render_options_ui(SDL_Renderer* renderer) {
         if (in_volume_sub_menu) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
             SDL_RenderRect(renderer, &volume_bar_rect);
+        }
+    }
+}
+
+
+void render_credits_ui(SDL_Renderer* renderer) {
+    if (background_texture) {
+        SDL_FRect dest;
+        SDL_GetCurrentRenderOutputSize(renderer, (int*)&dest.w, (int*)&dest.h);
+        dest.x = 0;
+        dest.y = 0;
+        SDL_RenderTexture(renderer, background_texture, NULL, NULL);
+    }
+    TTF_Font* credits_font = TTF_OpenFont("C:/Users/Admin/Downloads/Open_Sans/static/OpenSans-Regular.ttf", 12); 
+    if (!credits_font) {
+        SDL_Log("No font loaded. Cannot render credits.");
+        return;
+    }
+    menu_ui.text_color = { 255 , 0 , 0 , 255 };
+
+    std::vector<std::string> credits_text = {
+    "CREDITS",
+    "",
+    "Programming: ",
+    "NGUYEN THANH TUNG , DAM VAN TEU, DUONG CONG TRUC",
+    "",
+    "Art:",
+    "DUONG CONG TRUC",
+    "",
+    "Music:",
+    "credit to Yasunori Nishiki for music",
+    "",
+    "Press ESC to return"
+    };
+
+    int x = 50;
+    int y = 20;
+    for (const auto& line : credits_text) {
+
+            if (line == "CREDITS") {
+                menu_ui.text_color = { 255 , 0 , 0 , 255 };
+            }
+            else if (line.find("Programming") != std::string::npos) {
+                menu_ui.text_color = { 255 , 0 , 0 , 255 };
+            }
+            else {
+                menu_ui.text_color = { 255 , 0 , 0 , 255 };
+            }
+
+
+
+        SDL_Surface* surface = TTF_RenderText_Solid(credits_font, line.c_str(),0, menu_ui.text_color);
+        if (!surface) continue;
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (!texture) { SDL_DestroySurface(surface); continue; }
+        SDL_FRect dest = { (float)x, (float)y, (float)surface->w, (float)surface->h };
+        SDL_RenderTexture(renderer, texture, NULL, &dest);
+        y += 30; // Move down for the next line
+        SDL_DestroyTexture(texture);
+        SDL_DestroySurface(surface);
+    }
+}
+
+void update_credits_ui(const SDL_Event* event) {
+    if (event == nullptr) {
+        return;
+    }
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        if (event->key.key == SDLK_ESCAPE) {
+            current_game_state = STATE_MAIN_MENU; // Go back to the main menu
         }
     }
 }

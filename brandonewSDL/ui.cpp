@@ -99,10 +99,10 @@ void update_battle_ui(const SDL_Event* event) {
         case SDLK_KP_ENTER:
             SDL_Log("You selected: %s", battle_ui.options[battle_ui.selected_option].c_str());
             if (battle_ui.options[battle_ui.selected_option] == "Attack"){
-                Monster.entity.current_hp -= PLAYER.entity.attack_power;
-                PLAYER.entity.current_hp -= Monster.entity.attack_power;
+                current_enemy->current_hp -= PLAYER.entity.attack_power;
+                PLAYER.entity.current_hp -= current_enemy->attack_power;
                 SDL_Log("player hp: %d / %d", PLAYER.current_hp, PLAYER.max_hp);
-                SDL_Log("monster hp: %d / %d", Monster.current_hp, Monster.max_hp);
+                SDL_Log("monster hp: %d / %d", current_enemy->current_hp, current_enemy->max_hp);
 
             }
 
@@ -111,7 +111,7 @@ void update_battle_ui(const SDL_Event* event) {
                 PLAYER.set_position(18, 107); // Reset to safe zone
             }
 
-            if (Monster.entity.current_hp <= 0) {
+            if (current_enemy->current_hp <= 0) {
                 end_battle_won();
 
             }
@@ -128,5 +128,4 @@ void cleanup_battle_ui() {
         TTF_CloseFont(battle_ui.font);
         battle_ui.font = nullptr;
     }
-    SDL_DestroyTexture(Monster.texture);
 }

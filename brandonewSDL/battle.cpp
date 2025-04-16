@@ -1,14 +1,14 @@
 #include "battle.h"
 #include "ui.h"
-
+#include "monster1.h"
 
 
 BattleState current_battle_state = BATTLE_NONE;
 Entity* current_enemy = nullptr;
 
-void start_battle(Entity* enemy) {
+void start_battle(Monster1* enemy) {
     current_battle_state = BATTLE_ACTIVE;
-    current_enemy = enemy;
+    current_enemy = &enemy->entity;
 
     init_battle_ui(SDL_GetRenderer(SDL_GetWindowFromID(1)));
 
@@ -22,10 +22,10 @@ void update_battle(float delta_time) {
     float smoothing = 10.0f;
     PLAYER.entity.displayed_hp += (PLAYER.entity.current_hp - PLAYER.entity.displayed_hp) * smoothing * delta_time;
 
-    Monster.entity.displayed_hp += (Monster.entity.current_hp - Monster.entity.displayed_hp) * smoothing * delta_time;
-  
-
-    SDL_Log(" player: %.2f , mosnter %.2f", PLAYER.entity.displayed_hp, Monster.entity.displayed_hp);
+    if (current_enemy) { 
+        current_enemy->displayed_hp += (current_enemy->current_hp - current_enemy->displayed_hp) * smoothing * delta_time;
+        SDL_Log(" player: %.2f , monster %.2f", PLAYER.entity.displayed_hp, current_enemy->displayed_hp);
+    }
     
     // Turn-based logic, inputs, animations
     // For now, just log for debugging
@@ -43,13 +43,44 @@ void render_battle(SDL_Renderer* renderer) {
 void end_battle_lost() {
     cleanup_battle_ui();
     current_battle_state = BATTLE_NONE;
-    current_enemy = nullptr;
+
+    // Reset the triggered flag of the enemy if it exists
+    if (current_enemy != nullptr) {
+        for (auto& monster : monsters) {
+            if (&monster.entity == current_enemy) {
+                monster.triggered = false;
+                if (monster.entity.texture != nullptr) {
+                    SDL_DestroyTexture(monster.entity.texture);
+                    monster.entity.texture = nullptr;
+                    SDL_Log("Monster texture destroyed!");
+                }
+                break;
+            }
+        }
+        current_enemy = nullptr;
+    }
     SDL_Log("Player fled the battle!");
 }
 void end_battle_won() {
     cleanup_battle_ui();
     current_battle_state = BATTLE_NONE;
-    current_enemy = nullptr;
+
+    // Reset the triggered flag of the defeated enemy if it exists
+    if (current_enemy != nullptr) {
+        for (auto& monster : monsters) {
+            if (&monster.entity == current_enemy) {
+                monster.triggered = false;
+                SDL_Log("Monster trigger reset after defeat!");
+                if (monster.entity.texture != nullptr) {
+                    SDL_DestroyTexture(monster.entity.texture);
+                    monster.entity.texture = nullptr;
+                    SDL_Log("Monster texture destroyed!");
+                }
+                break;
+            }
+        }
+        current_enemy = nullptr;
+    }
     SDL_Log("Monster defeated!");
 }
 
