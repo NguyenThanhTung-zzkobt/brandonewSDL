@@ -4,6 +4,17 @@
 #include "camera.h"
 #include "battle.h"
 #include <vector>
+#include <string>
+#include <cstdlib>   // For rand() and srand()
+#include <ctime>     // For time() to seed the random number generator
+
+enum BattleAction {
+	///bomberplant
+	NORMAL_ATTACK,
+	SPIKE_ATTACK,
+	POISON_INFECTION,
+
+};
 
 class Monster1 {
 public:
@@ -11,17 +22,23 @@ public:
 	float detection_radius;
 	bool triggered;
 	SDL_Texture* texture;
+	std::string texture_path;
+
 	Entity entity;
 
-	int current_hp;
-	int max_hp;
+	float current_hp;
+	float max_hp;
 	int attack_power;
 
 	void render(SDL_Renderer* renderer);
 	void update();
 	void cleanup();
+	void reload_monster_texture(SDL_Renderer* renderer);
 };
 
+
+
+BattleAction choose_action();
 void init_monster1(SDL_Renderer* renderer);
 extern Monster1 Monster;
 extern Monster1 phantom1;

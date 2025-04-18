@@ -1,12 +1,17 @@
 ﻿#include "menu.h"
 
-firstState current_game_state = STATE_MAIN_MENU;
-
+GameState current_game_state = STATE_MAIN_MENU;
+OptionsOrigin options_origin;
 menuUI menu_ui;
 
 static SDL_Surface* background_surface;
 static SDL_Texture* background_texture = nullptr;
-static Mix_Music* music = nullptr;
+
+
+
+
+
+
 
 static std::vector<std::string> selecting_options = { "NEW GAME" ,"CONTINUE" , "OPTIONS" , "CREDITS", "EXIT" };
 static std::vector<std::string> selecting_options_option = { "FULLSCREEN", "CHANGE VOLUME" };
@@ -15,13 +20,6 @@ bool fullscreen_enabled = false;
 int options_select = 0;
 
 
-int volume_level = 100; 
-SDL_Rect volume_bar_rect;
-int volume_bar_width = 200;
-int volume_bar_height = 20;
-int volume_bar_x_offset = 175;
-int volume_bar_y_offset = 8;
-bool in_volume_sub_menu = false;
 
 
 int options_sub_select = 0; 
@@ -29,8 +27,6 @@ bool in_options_sub_menu = false;
 SDL_Rect fullscreen_checkbox_rect; 
 
 
-SDL_AudioSpec audiospec = {};
-int menu_select = 0;
 
 TTF_Font* g_menu_font = nullptr;
 
@@ -40,12 +36,14 @@ SDL_Color g_color_selected = { 255, 255, 0, 255 };
 
 
 void init_menu_ui(SDL_Renderer* renderer) {
+    play_music("assets/OCTOPATH TRAVELER - opening menu-.mp3");
+    if (menu_ui.font != nullptr) return;
     menu_ui.menu_select = 0;
     menu_ui.selecting_options = { "NEW GAME" ,"CONTINUE" , "OPTIONS" , "CREDITS", "EXIT" };
     menu_ui.text_color = { 255, 255, 255, 255 };
 
 
-    menu_ui.font = TTF_OpenFont("C:/Users/Admin/Downloads/Open_Sans/static/OpenSans-Regular.ttf", 20);
+    menu_ui.font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 20);
     if (!menu_ui.font) {
         SDL_Log("Failed to load font: %s", SDL_GetError());
         return;
@@ -69,36 +67,13 @@ void init_menu_ui(SDL_Renderer* renderer) {
         SDL_DestroySurface(background_surface);
     }
 
-    audiospec.format = MIX_DEFAULT_FORMAT;
-    audiospec.channels = MIX_DEFAULT_CHANNELS;
-    audiospec.freq = MIX_DEFAULT_FREQUENCY;
 
-    if (!Mix_OpenAudio(0, &audiospec)) {
-        SDL_Log("Error opening audio: %s\n", SDL_GetError());
-        SDL_CloseAudioDevice(0);
-    }
-    else {
-        music = Mix_LoadMUS("assets/OCTOPATH TRAVELER - opening menu-.mp3");
-    }
-
-    if (!music) {
-        SDL_Log("Failed to load music: %s\n", SDL_GetError());
-    }
-    else {
-        if (Mix_PlayMusic(music, -1) == -1) {
-            SDL_Log("Failed to play music: %s\n", SDL_GetError());
-        }
-    }
-
-
-    current_game_state = STATE_MAIN_MENU; 
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Menu UI Initialized.");
 }
 
 
 void render_menu_ui(SDL_Renderer* renderer) {
     if (!menu_ui.font) {
-        SDL_Log("No font loaded. Cannot render battle UI.");
+        SDL_Log("No font loaded. Cannot render menu UI.");
         return;
     }
     if (background_texture) {
@@ -146,8 +121,8 @@ void render_menu_ui(SDL_Renderer* renderer) {
 
 
 void update_menu_ui(const SDL_Event* event){
-    if (event == nullptr) { //  Check if event is NULL
-        return; //  IMPORTANT:  Return immediately if event is NULL
+    if (event == nullptr) { 
+        return; 
     }
     if (event->type == SDL_EVENT_KEY_DOWN) {
         switch (event->key.key) {
@@ -161,14 +136,36 @@ void update_menu_ui(const SDL_Event* event){
         case SDLK_KP_ENTER:
             SDL_Log("You selected: %s", menu_ui.selecting_options[menu_ui.menu_select].c_str());
             if (menu_ui.selecting_options[menu_ui.menu_select] == "NEW GAME") {
-                current_game_state = STATE_INIT_GAME;
+                is_starting_new_game = true;
+
+                PLAYER.position.x = 100;  
+                PLAYER.position.y = 100;
+                PLAYER.current_hp = PLAYER.max_hp; 
+                PLAYER.inventory.clear();           
+
+                mapInstance.loadMap(0, renderer); 
+
+                switch_game_state(STATE_INIT_GAME, renderer);
+                reset_delta_time();
+                cleanup_menu_ui();
+
+            }
+            else if (menu_ui.selecting_options[menu_ui.menu_select] == "CONTINUE") {
+                load_game(filename, renderer);
+                current_game_state = STATE_INGAME;
+                reset_delta_time();
+                cleanup_menu_ui();
+
 
             }
             else if (menu_ui.selecting_options[menu_ui.menu_select] == "OPTIONS") {
+                options_origin = OPTIONS_FROM_MAIN_MENU;
                 current_game_state = STATE_OPTIONS_MENU;
+                reset_delta_time();
             }
             else if (menu_ui.selecting_options[menu_ui.menu_select] == "CREDITS") {
                 current_game_state = STATE_CREDITS;
+                reset_delta_time();
             }
 
             else if(menu_ui.selecting_options[menu_ui.menu_select] == "EXIT") {
@@ -184,63 +181,7 @@ void update_menu_ui(const SDL_Event* event){
 
 }
 
-void update_options_ui(SDL_Renderer* renderer, SDL_Window* window,const SDL_Event* event) {
-    if (event == nullptr) {
-        return;
-    }
-    if (event->type == SDL_EVENT_KEY_DOWN) {
-        switch (event->key.key) {
-        case SDLK_UP:
-            options_select = (options_select - 1 + selecting_options_option.size()) % selecting_options_option.size();
-            in_options_sub_menu = false; // Reset sub-menu when navigating options
-            options_sub_select = 0;
-            break;
-        case SDLK_DOWN:
-            options_select = (options_select + 1) % selecting_options_option.size();
-            in_options_sub_menu = false; // Reset sub-menu when navigating options
-            options_sub_select = 0;
-            break;
-        case SDLK_RIGHT:
-            if (options_select == 0 && !in_options_sub_menu) {
-                in_options_sub_menu = true;
-                options_sub_select = 0;
-            }
-            else if (options_select == 1) {
-                in_volume_sub_menu = true;
-                volume_level = SDL_min(100, volume_level + 5); 
-                Mix_VolumeMusic(volume_level * MIX_MAX_VOLUME / 100);
-            }
-            break;
-        case SDLK_LEFT:
-            if (options_select == 0) {
-                in_options_sub_menu = false;
-                options_sub_select = 0;
-                
-            }
-            else if (options_select == 1) {
-                in_volume_sub_menu = true;
-                volume_level = SDL_max(0, volume_level - 5); 
-                Mix_VolumeMusic(volume_level * MIX_MAX_VOLUME / 100);
-            }
-            break;
-        case SDLK_RETURN:
-        case SDLK_KP_ENTER:
-            if (options_select == 0 && in_options_sub_menu && options_sub_select == 0) {
-                fullscreen_enabled = !fullscreen_enabled;
-                SDL_SetWindowFullscreen(window, fullscreen_enabled ? true : 0);
-            }
-            else if (options_select == 1) {
-                in_volume_sub_menu = true;
-            }
-            break;
-        case SDLK_ESCAPE:
-            current_game_state = STATE_MAIN_MENU; // Go back to main menu on Escape
-            break;
-        default:
-            break;
-        }
-    }
-}
+
 
 
 
@@ -253,12 +194,25 @@ void cleanup_menu_ui() {
         SDL_DestroyTexture(background_texture);
         background_texture = nullptr;
     }
-    if (music) {
-        Mix_FreeMusic(music);
-        music = nullptr;
-    }
-    SDL_CloseAudioDevice(0); 
+
     Mix_Quit();
+}
+
+
+void init_options_ui(SDL_Renderer* renderer) {
+    SDL_Log("Initializing options UI...");
+
+    if (!menu_ui.font) {
+        menu_ui.font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 20);
+        if (!menu_ui.font) {
+            SDL_Log("Failed to load options menu font: %s", SDL_GetError());
+        }
+        else {
+            SDL_Log("Options menu font loaded");
+        }
+    }
+
+    menu_ui.text_color = { 255, 255, 255, 255 };
 }
 
 void render_options_ui(SDL_Renderer* renderer) {
@@ -347,6 +301,70 @@ void render_options_ui(SDL_Renderer* renderer) {
     }
 }
 
+void update_options_ui(SDL_Renderer* renderer, SDL_Window* window,const SDL_Event* event) {
+    if (event == nullptr) {
+        return;
+    }
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        switch (event->key.key) {
+        case SDLK_UP:
+            options_select = (options_select - 1 + selecting_options_option.size()) % selecting_options_option.size();
+            in_options_sub_menu = false; // Reset sub-menu when navigating options
+            options_sub_select = 0;
+            break;
+        case SDLK_DOWN:
+            options_select = (options_select + 1) % selecting_options_option.size();
+            in_options_sub_menu = false; // Reset sub-menu when navigating options
+            options_sub_select = 0;
+            break;
+        case SDLK_RIGHT:
+            if (options_select == 0 && !in_options_sub_menu) {
+                in_options_sub_menu = true;
+                options_sub_select = 0;
+            }
+            else if (options_select == 1) {
+                in_volume_sub_menu = true;
+                volume_level = SDL_min(100, volume_level + 5); 
+                Mix_VolumeMusic(volume_level * MIX_MAX_VOLUME / 100);
+            }
+            break;
+        case SDLK_LEFT:
+            if (options_select == 0) {
+                in_options_sub_menu = false;
+                options_sub_select = 0;
+                
+            }
+            else if (options_select == 1) {
+                in_volume_sub_menu = true;
+                volume_level = SDL_max(0, volume_level - 5); 
+                Mix_VolumeMusic(volume_level * MIX_MAX_VOLUME / 100);
+            }
+            break;
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+            if (options_select == 0 && in_options_sub_menu && options_sub_select == 0) {
+                fullscreen_enabled = !fullscreen_enabled;
+                SDL_SetWindowFullscreen(window, fullscreen_enabled ? true : 0);
+            }
+            else if (options_select == 1) {
+                in_volume_sub_menu = true;
+            }
+            break;
+        case SDLK_ESCAPE:
+            if (options_origin == OPTIONS_FROM_MAIN_MENU) {
+                current_game_state = STATE_MAIN_MENU;
+            }
+            else if (options_origin == OPTIONS_FROM_PAUSE_MENU) {
+                current_game_state = STATE_PAUSE_MENU;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+
 
 void render_credits_ui(SDL_Renderer* renderer) {
     if (background_texture) {
@@ -356,7 +374,7 @@ void render_credits_ui(SDL_Renderer* renderer) {
         dest.y = 0;
         SDL_RenderTexture(renderer, background_texture, NULL, NULL);
     }
-    TTF_Font* credits_font = TTF_OpenFont("C:/Users/Admin/Downloads/Open_Sans/static/OpenSans-Regular.ttf", 12); 
+    TTF_Font* credits_font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 12); 
     if (!credits_font) {
         SDL_Log("No font loaded. Cannot render credits.");
         return;
@@ -416,3 +434,34 @@ void update_credits_ui(const SDL_Event* event) {
         }
     }
 }
+
+
+int get_current_game_state_id() {
+    return current_game_state;
+}
+
+
+void switch_game_state(GameState new_state, SDL_Renderer* renderer) {
+    // For now, just set the global state.  In a more complex game, you would
+    //  deallocate the old state and allocate the new state.  You might also
+    //  need to initialize the new state (e.g., load a level).
+    current_game_state = new_state;
+    SDL_Log("Switched to game state %d\n", new_state);
+    // Here you would also call any necessary initialization for the new game state.
+    // For example, if new_state is the ID of a level, you would load the level here.
+    switch (new_state) {
+    case STATE_MAIN_MENU:
+        // Initialize first state
+        break;
+    case STATE_INIT_GAME:
+        // Initialize second state
+        break;
+    case STATE_INGAME:
+        // Initialize third state
+        break;
+    default:
+        SDL_Log("Unknown game state: %d\n", new_state);
+        break;
+    }
+}
+

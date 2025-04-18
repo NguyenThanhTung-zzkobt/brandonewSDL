@@ -1,28 +1,47 @@
 
 #pragma once
 #include <cstring>
+
 #include <SDL3/SDL.h>
+
 #define MAX_ENTITIES 100
 #define MAX_NAME_LENGTH 64
-typedef struct {
-	char name[MAX_NAME_LENGTH];
-	SDL_FPoint position;
-	float detection_radius;
-	bool triggered;
 
-	int max_hp;
-	int current_hp;
-	int attack_power;
+struct StatusEffect {
+    enum Type {
+        NONE,
+        POISON
 
-	float displayed_hp;
+    };
 
-	void (*cleanup)(void);
-	void(*handle_events)(SDL_Event*);
-	void(*update)(float);
-	void(*render)(SDL_Renderer*);
-	SDL_Texture* texture;
-} Entity;
+    Type type = NONE;
+    int duration = 0;
+    int damagePerTurn = 0;
+};
 
+class Entity { // Changed from struct to class
+public:
+    char name[MAX_NAME_LENGTH];
+    SDL_FPoint position;
+    float detection_radius;
+    bool triggered;
+
+    float max_hp;
+    float current_hp;
+    int attack_power;
+    StatusEffect active_status;
+
+    float displayed_hp;
+
+    virtual ~Entity() {};
+
+    void (*cleanup)(void) = nullptr; // Initialize function pointers to nullptr
+    void (*handle_events)(SDL_Event*) = nullptr;
+    void (*update)(float) = nullptr;
+    void (*render)(SDL_Renderer*) = nullptr;
+    void (*set_position)(int x, int y) = nullptr;
+    SDL_Texture* texture = nullptr;
+};
 
 extern Entity entities[MAX_ENTITIES];
 extern int entities_count;

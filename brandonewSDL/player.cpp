@@ -1,6 +1,5 @@
 #include "player.h"
 #include "map.h"
-#define PLAYER_SPEED 200.0f 
 static SDL_Texture* player_texture = NULL;
 static SDL_FRect sprite_portion = { 17, 14 , 15 ,18 };
 
@@ -12,10 +11,12 @@ Player::Player() {
 	position.y = 107;
 	velocity_x = 0;
 	velocity_y = 0;
-	max_hp = 100;
-	
-	current_hp = 100;
-	attack_power = 20;
+	max_hp = 100.0;
+	active_status.type = StatusEffect::Type::NONE;
+	active_status.duration = 0;
+	active_status.damagePerTurn = 0;
+	current_hp = 100.0;
+	attack_power = 5;
 	texture = nullptr;
 }
 Player PLAYER;
@@ -71,10 +72,10 @@ bool Player::checkCollision(float x, float y) {
 }
 
 void Player::cleanup() {
-	if (player_texture) {
+	if (texture) {
 		SDL_Log("Cleaning up player texture");
-		SDL_DestroyTexture(player_texture);
-		player_texture = NULL;
+		SDL_DestroyTexture(texture);
+		texture = NULL;
 	}
 }
 
@@ -126,6 +127,7 @@ void Player::update(float delta_time) {
 	if (camera.y + camera.h >= 240) camera.y = 240 - camera.h;
 }
 void Player::render(SDL_Renderer* renderer) {
+
 	float final_x = camera.w / 2 - sprite_size.w / 2;
 	float final_y = camera.h / 2 - sprite_size.h / 2;
 
@@ -167,6 +169,8 @@ void Player::render(SDL_Renderer* renderer) {
 
 void init_player(SDL_Renderer* renderer) {
 
+
+
 	PLAYER.texture = IMG_LoadTexture(renderer, "assets/Char_Sprites/char_spritesheet.png");
 	if (!PLAYER.texture) {
 		SDL_Log("Couldn't load player texture: %s", SDL_GetError());
@@ -176,13 +180,16 @@ void init_player(SDL_Renderer* renderer) {
 
 	PLAYER.entity.position = PLAYER.position;
 	PLAYER.entity.max_hp = PLAYER.max_hp;
-	
+
 	PLAYER.entity.current_hp = PLAYER.current_hp;
 	PLAYER.entity.displayed_hp = (float)PLAYER.current_hp;
+	PLAYER.entity.active_status.type = PLAYER.active_status.type;
+	PLAYER.entity.active_status.duration = PLAYER.active_status.duration;
+	PLAYER.entity.active_status.damagePerTurn = PLAYER.active_status.damagePerTurn;
 	SDL_Log("Init: current_hp = %d, displayed_hp = %.2f", PLAYER.entity.current_hp, PLAYER.entity.displayed_hp);
 	PLAYER.entity.attack_power = PLAYER.attack_power;
 
-	strncpy_s(PLAYER.entity.name , "PLAYER", MAX_NAME_LENGTH -1);
+	strncpy_s(PLAYER.entity.name, "PLAYER", MAX_NAME_LENGTH - 1);
 	PLAYER.entity.update = [](float dt) {
 		PLAYER.update(dt);
 		};
@@ -194,7 +201,9 @@ void init_player(SDL_Renderer* renderer) {
 	PLAYER.entity.cleanup = []() {
 		PLAYER.cleanup();
 		};
-
+	PLAYER.entity.set_position = [](int x , int y) {
+		PLAYER.set_position(x, y);
+		};
 
 
 
@@ -202,7 +211,88 @@ void init_player(SDL_Renderer* renderer) {
 }
 
 
+void reload_player_texture(SDL_Renderer* renderer) {
+	if (PLAYER.texture) {
+		SDL_DestroyTexture(PLAYER.texture);
+		PLAYER.texture = nullptr;
+	}
+	PLAYER.texture = IMG_LoadTexture(renderer, "assets/Char_Sprites/char_spritesheet.png");
+	SDL_Log("PLAYER.texture = %p", PLAYER.texture);
+	if (!PLAYER.texture) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load player texture: %s", SDL_GetError());
+	}
+}
+
 void Player::set_position(int x, int y) {
-	this->position.x = x;
-	this->position.y = y;
+	this->position.x = static_cast<float>(x);
+	this->position.y = static_cast<float>(y);
+}
+
+void Player::addItem(int itemID) {
+	if (inventory.size() < MAX_INVENTORY_SIZE) {
+		inventory.push_back(itemID);
+		SDL_Log( "Added item %d",  itemID);
+	}
+	else {
+		SDL_Log("Inventory is full. Cannot add item %d ", itemID);
+	}
+}
+
+bool Player::removeItem(int itemID) {
+	for (auto it = inventory.begin(); it != inventory.end(); ++it) {
+		if (*it == itemID) {
+			inventory.erase(it);
+			SDL_Log("Removed item %d from inventory.", itemID);
+			return true;
+		}
+	}
+	SDL_Log("Item %d not found in inventory.", itemID);
+	return false;
+}
+bool Player::removeItemByIndex(int index) {
+	if (index >= 0 && index < inventory.size()) {
+		inventory.erase(inventory.begin() + index);
+		SDL_Log("Removed item at index %d from inventory.", index);
+		return true;
+	}
+	SDL_Log("Invalid index: %d.", index);
+	return false;
+}
+int Player::getInventorySize() {
+	return inventory.size();
+}
+int Player::getItemCount(int itemID) {
+	int count = 0;
+	for (int item : inventory) {
+		if (item == itemID) {
+			count++;
+		}
+	}
+	return count;
+}
+void Player::displayInventory() {
+	if (inventory.empty()) {
+		SDL_Log("Inventory is empty.");
+	}
+	else {
+		SDL_Log("Inventory:");
+		for (size_t i = 0; i < inventory.size(); ++i) {
+			SDL_Log("[%d] %d", i, inventory[i]);
+		}
+	}
+}
+bool Player::hasItem(int itemID) {
+	for (int item : inventory) {
+		if (item == itemID) {
+			return true;
+		}
+	}
+	return false;
+}
+bool Player::canAddItem() {
+	return inventory.size() < MAX_INVENTORY_SIZE;
+}
+void Player::clearInventory() {
+	inventory.clear();
+	SDL_Log("Inventory cleared.");
 }

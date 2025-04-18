@@ -8,6 +8,7 @@
 #include "string"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "battle.h"
+#include "monster1.h"
 
 void draw_battle_ui(SDL_Renderer* renderer, const Entity* PLAYER, const Entity* Monster);
 

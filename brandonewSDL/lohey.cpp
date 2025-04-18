@@ -11,36 +11,54 @@
 #include "battle.h"
 #include "ui.h"
 #include "menu.h"
+#include "pause.h"
+#include "time_manager.h"
+#include "music.h"
+#include "save.h"
 
 #define TARGET_FPS 144
 #define TARGET_FRAME_TIME (1000/ TARGET_FPS)
 #define MIX_FLAGS MIX_INIT_OGG
 
-static SDL_Window* window = NULL;
-static SDL_Renderer* renderer = NULL;
-static Map mapInstance;
-
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
+Map mapInstance;
+bool pause_ui_initialized = false;
+bool menu_ui_initialized = false;
+bool option_menu_ui_initialized = false;
+bool music_is_playing = false;
 Uint64 last_tick = 0;
 Uint64 current_tick = 0;
-float delta_time;
+float delta_time = 0.0f;
 
 void update() {
-	last_tick = current_tick;
-	current_tick = SDL_GetTicks();
-	delta_time = (current_tick - last_tick) / 1000.0f;
 
+	last_tick = current_tick;
+
+	current_tick = SDL_GetTicks();
+
+	delta_time = (current_tick - last_tick) / 1000.0f;
+	
+
+	menu_ui_initialized = false;
 	switch (current_game_state) {
 	case STATE_MAIN_MENU:
+		if (!menu_ui_initialized) { 
+			init_menu_ui(renderer);
+			menu_ui_initialized = true;
+		}
 		break;
 	case STATE_INIT_GAME:
-		mapInstance.init_map(renderer);
-		PLAYER.setMap(&mapInstance);
-		init_player(renderer);
-		init_monster1(renderer);
-		cleanup_menu_ui();
-		current_game_state = STATE_INGAME;
+		if (is_starting_new_game) {
+
+			cleanup_menu_ui();
+			current_game_state = STATE_INGAME;
+			is_starting_new_game = false;
+			option_menu_ui_initialized = false;
+		}
 		break;
 	case STATE_INGAME:
+		pause_ui_initialized = false;
 		if (is_in_battle()) {
 			update_battle(delta_time);
 		}
@@ -52,13 +70,27 @@ void update() {
 			}
 		}
 		break;
+	case STATE_OPTIONS_MENU:
+		if (!option_menu_ui_initialized) {
+			init_options_ui(renderer);
+			option_menu_ui_initialized = true;
+
+		}
+		///render_options_ui(renderer);
+		break;
+	case STATE_PAUSE_MENU:
+		if (!pause_ui_initialized) {
+			init_pause_menu_ui(renderer);
+			pause_ui_initialized = true;
+		}
+		break;
 	default:
 		break;
 	}
 }
 
 void render() {
-	if (current_game_state != STATE_MAIN_MENU) {
+	if (current_game_state ) {
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Default background for other states
 		SDL_RenderClear(renderer);
 	}
@@ -87,6 +119,9 @@ void render() {
 				}
 			}
 		}
+		break;
+	case STATE_PAUSE_MENU:
+		render_pause_menu_ui(renderer);
 		break;
 	default:
 		break;
@@ -118,12 +153,16 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
+	init_music();
 
-
-
-
+	mapInstance.init_map(renderer);
+	PLAYER.setMap(&mapInstance);
+	init_player(renderer);
+	init_monster1(renderer);
 
 	init_menu_ui(renderer);
+	init_pause_menu_ui(renderer);
+
 	SDL_SetRenderLogicalPresentation(renderer, 400 , 255, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	return SDL_APP_CONTINUE;
@@ -152,12 +191,24 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 		// Handle events specific to the initial game state (if any)
 		break;
 	case STATE_INGAME:
+		if (event->type == SDL_EVENT_KEY_DOWN) {
+			if (event->key.key == SDLK_ESCAPE) {
+				current_game_state = STATE_PAUSE_MENU;
+				SDL_Log("Game Paused");
+				break; // Important: Exit the switch case after handling ESC
+			}
+		}
 		if (is_in_battle()) {
+
 			update_battle_ui(event);
 		}
 		else {
+
 			//  handle_events(event);  //  Original game event handling
 		}
+		break;
+	case STATE_PAUSE_MENU:
+		update_pause_menu_ui(event); // Handle pause menu events
 		break;
 	case STATE_QUIT:
 		return SDL_APP_SUCCESS;
@@ -175,7 +226,11 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 {
 
 	if (current_game_state != STATE_QUIT) {
+		
+		///frame_count++;
+		///SDL_Log("--- Frame: %d ---", frame_count);
 		update();
+
 		render();
 		app_wait_for_next_frame();
 		return SDL_APP_CONTINUE;
@@ -192,6 +247,8 @@ void SDL_AppQuit(void* appstate, SDL_AppResult result)
 		}
 	}
 	if (PLAYER.texture) SDL_DestroyTexture(PLAYER.texture);
+	cleanup_pause_menu_ui();
+	cleanup_music();
 	if (renderer) SDL_DestroyRenderer(renderer);
 	if (window) SDL_DestroyWindow(window);
 	TTF_Quit();

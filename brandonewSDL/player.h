@@ -1,10 +1,15 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_pixels.h>
 #include <SDL3_image/SDL_image.h>
 #include "entity.h"
 #include "camera.h"
+#include "time_manager.h"
+#include "battle.h"
+#include "vector"
 
 class Map;
+
 
 
 class Player  {
@@ -16,10 +21,12 @@ public:
 	Entity entity;
 	Map* map_ref = nullptr;
 
-	int max_hp;
-	int current_hp;
+	float max_hp;
+	float current_hp;
 	int attack_power;
+	StatusEffect active_status;
 
+	std::vector<int> inventory;
 
 
 	Player();
@@ -30,35 +37,32 @@ public:
 	bool checkCollision(float x ,float y);
 	void cleanup();
 	void set_position(int x, int y);
-public:
+
+	void addItem(int itemID);
+	bool removeItem(int itemID);
+	int getInventorySize();
+	int getItemCount(int itemID);
+	void displayInventory();
+	bool hasItem(int itemID);
+	bool canAddItem();
+	void clearInventory();
+	bool removeItemByIndex(int index);
+
+private:
+	static const int MAX_INVENTORY_SIZE = 20;
 };
 
 
-#ifdef DISABLED
-typedef struct {
-	float x, y;
-} Position;
-typedef struct {
-	SDL_FRect position;
-	float velocity_x;
-	float velocity_y;
-	SDL_Texture* texture;
-} Player;
 
 
-
-typedef struct {
-	float w, h;
-}SpriteSize;
-#endif
 
 typedef struct {
 	float w, h;
 } SpriteSize;
 
 
-//extern Position player_position;
 
+void reload_player_texture(SDL_Renderer* renderer);
 void init_player(SDL_Renderer* renderer);
 extern Player PLAYER;
 

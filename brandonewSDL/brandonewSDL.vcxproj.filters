@@ -42,6 +42,18 @@
     <ClCompile Include="menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pause.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="time_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="music.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="save.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\Char_Sprites\char_spritesheet.png">
@@ -85,6 +97,21 @@
     <ClInclude Include="menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pause.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="time_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="music.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="save.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="tiled\map.json" />
@@ -93,5 +120,10 @@
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\OCTOPATH TRAVELER - opening menu-.mp3" />
+    <Media Include="assets\battle.mp3" />
+    <Media Include="assets\map1.mp3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="external\Open_Sans\static\OpenSans-Regular.ttf" />
   </ItemGroup>
 </Project>

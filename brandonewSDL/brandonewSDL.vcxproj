@@ -151,8 +151,12 @@
     <ClCompile Include="map.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="monster1.cpp" />
+    <ClCompile Include="music.cpp" />
+    <ClCompile Include="pause.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="lohey.cpp" />
+    <ClCompile Include="save.cpp" />
+    <ClCompile Include="time_manager.cpp" />
     <ClCompile Include="ui.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -186,10 +190,15 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="external\cute_tiled.h" />
+    <ClInclude Include="global.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="monster1.h" />
+    <ClInclude Include="music.h" />
+    <ClInclude Include="pause.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="save.h" />
+    <ClInclude Include="time_manager.h" />
     <ClInclude Include="ui.h" />
   </ItemGroup>
   <ItemGroup>
@@ -198,7 +207,12 @@
     <None Include="tiled\untitled.tiled-session" />
   </ItemGroup>
   <ItemGroup>
+    <Media Include="assets\battle.mp3" />
+    <Media Include="assets\map1.mp3" />
     <Media Include="assets\OCTOPATH TRAVELER - opening menu-.mp3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="external\Open_Sans\static\OpenSans-Regular.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,11 +6,16 @@ int entities_count = 0;
 
 
 void create_entity(Entity entity) {
+
 	if (entities_count < MAX_ENTITIES) {
 		entities[entities_count++] = entity;
 	}
 	else {
 		SDL_Log("Maxium number of entities reached\n");
+	}
+	SDL_Log("Entity list before rendering:");
+	for (auto& e : entities) {
+		SDL_Log("Entity type: %s, pos x=%.2f y=%.2f", e.name, e.position.x, e.position.y);
 	}
 }
 

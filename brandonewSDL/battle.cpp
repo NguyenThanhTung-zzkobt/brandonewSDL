@@ -1,16 +1,29 @@
 #include "battle.h"
 #include "ui.h"
 #include "monster1.h"
+#include "music.h"
 
 
 BattleState current_battle_state = BATTLE_NONE;
 Entity* current_enemy = nullptr;
 
 void start_battle(Monster1* enemy) {
+    if (PLAYER.entity.current_hp <= 0) {
+        SDL_Log("PLAYER is no longer able to battle ");
+        return;
+    }
     current_battle_state = BATTLE_ACTIVE;
     current_enemy = &enemy->entity;
 
-    init_battle_ui(SDL_GetRenderer(SDL_GetWindowFromID(1)));
+
+   
+    if (renderer) {
+        init_battle_ui(renderer);
+    }
+    else {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, ". for battle UI initialization!");
+    }
+
 
 
     // Optional: pause other systems (like map movement)
@@ -24,7 +37,7 @@ void update_battle(float delta_time) {
 
     if (current_enemy) { 
         current_enemy->displayed_hp += (current_enemy->current_hp - current_enemy->displayed_hp) * smoothing * delta_time;
-        SDL_Log(" player: %.2f , monster %.2f", PLAYER.entity.displayed_hp, current_enemy->displayed_hp);
+       
     }
     
     // Turn-based logic, inputs, animations
@@ -35,10 +48,13 @@ void render_battle(SDL_Renderer* renderer) {
     if (current_battle_state != BATTLE_ACTIVE) return;
 
     // Render basic UI: enemy/player HP, background, etc.
-    Entity* PLAYER_entity = &entities[find_entity("PLAYER")];
+    //Entity* PLAYER_entity = &entities[find_entity("PLAYER")];
     draw_battle_ui(renderer, &PLAYER.entity, current_enemy); // custom UI drawing
     render_battle_ui(renderer);
 }
+
+
+
 
 void end_battle_lost() {
     cleanup_battle_ui();
@@ -46,7 +62,9 @@ void end_battle_lost() {
 
     // Reset the triggered flag of the enemy if it exists
     if (current_enemy != nullptr) {
+        SDL_Log("current_enemy ptr = %p", (void*)current_enemy);
         for (auto& monster : monsters) {
+            SDL_Log("Comparing to monster.entity = %p", (void*)&monster.entity);
             if (&monster.entity == current_enemy) {
                 monster.triggered = false;
                 if (monster.entity.texture != nullptr) {
@@ -59,7 +77,7 @@ void end_battle_lost() {
         }
         current_enemy = nullptr;
     }
-    SDL_Log("Player fled the battle!");
+    SDL_Log("Player lost the battle!");
 }
 void end_battle_won() {
     cleanup_battle_ui();
@@ -87,4 +105,32 @@ void end_battle_won() {
 
 bool is_in_battle() {
     return current_battle_state == BATTLE_ACTIVE; 
+}
+
+
+///stauts
+void execute_poison_infection(Entity* attacker, Entity* target) {
+    if (!target) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error: execute_poison_infection received a null target pointer!");
+        return;
+    }
+
+    target = &PLAYER.entity;
+    if (target) {
+        if (target->active_status.type == StatusEffect::POISON) {
+            // If already poisoned, reset the duration
+            target->active_status.duration = 3;
+            SDL_Log("Player re-infected with POISON! Duration reset.");
+        }
+        else {
+            // If not already poisoned, apply the effect
+            target->active_status.type = StatusEffect::POISON;
+            target->active_status.duration = 3;
+            target->active_status.damagePerTurn = 15;
+            SDL_Log("Player inflicted with POISON!");
+        }
+    }
+    else {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error: execute_poison_infection target is not a Player!");
+    }
 }

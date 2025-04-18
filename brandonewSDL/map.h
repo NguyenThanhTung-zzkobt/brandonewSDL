@@ -23,12 +23,20 @@ typedef struct Texture {
 
 class Map {
 public:
+
     void init_map(SDL_Renderer* renderer);
     void processCollisionLayer(cute_tiled_layer_t* layer);
     int getWidth() const;
     int getHeight() const;
     int getCollisionData(int x, int y) const;
+    int getCurrentMapId() const;
+    int currentMap;
+    void loadMap(int map_id, SDL_Renderer* renderer);
 
 private:
     std::vector<std::vector<int>> collisionData;
+    
 };
+
+
+extern Map mapInstance;

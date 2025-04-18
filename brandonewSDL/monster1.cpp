@@ -5,6 +5,7 @@ static SDL_FRect sprite_portion = { 17, -2 , 15 ,18 };
 
 std::vector<Monster1> monsters;
 
+
 Monster1 phantom1;
 Monster1 Monster; // Changed 'monster' to 'Monster'
 
@@ -25,10 +26,10 @@ void Monster1::update() {
 }
 
 void Monster1::cleanup() {
-    if (Monster.texture) { 
+    if (this->texture) {
         SDL_Log("Cleaning up monster texture");
-        SDL_DestroyTexture(Monster.texture); 
-        Monster.texture = NULL; 
+        SDL_DestroyTexture(this->texture);
+        this->texture = NULL;
     }
 }
 void Monster1::render(SDL_Renderer* renderer) {
@@ -40,12 +41,15 @@ void Monster1::render(SDL_Renderer* renderer) {
 
 
     SDL_RenderTexture(renderer, texture, &sprite_portion, &dst); 
-    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR); 
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST); 
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
 }
 void init_monster1(SDL_Renderer* renderer) {
+
+
     ///bomberplant
-    Monster.texture = IMG_LoadTexture(renderer, "assets/Enemies_Sprites/Bomberplant_Sprites/bomberplant_spritesheet.png");
+    Monster.texture_path = "assets/Enemies_Sprites/Bomberplant_Sprites/bomberplant_spritesheet.png";
+    Monster.texture = IMG_LoadTexture(renderer, Monster.texture_path.c_str());
     if (!Monster.texture) {
         SDL_Log("Couldn't load monster texture: %s", SDL_GetError());
         return;
@@ -82,8 +86,8 @@ void init_monster1(SDL_Renderer* renderer) {
     create_entity(monsters.back().entity);
 
     //phantom
-
-    phantom1.texture = IMG_LoadTexture(renderer, "assets/Enemies_Sprites/Phantom_Sprites/phantom_spritesheet.png");
+    phantom1.texture_path = "assets/Enemies_Sprites/Phantom_Sprites/phantom_spritesheet.png";
+    phantom1.texture = IMG_LoadTexture(renderer, phantom1.texture_path.c_str());
     if (!phantom1.texture) {
         SDL_Log("Couldn't load monster texture: %s", SDL_GetError());
         return;
@@ -119,4 +123,34 @@ void init_monster1(SDL_Renderer* renderer) {
         };
     monsters.push_back(phantom1);
     create_entity(monsters.back().entity);
+}
+
+void Monster1::reload_monster_texture(SDL_Renderer* renderer) {
+    if (texture) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
+
+    texture = IMG_LoadTexture(renderer, texture_path.c_str());
+    if (!texture) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to reload monster texture: %s", SDL_GetError());
+    }
+}
+
+void seed_random() {
+    srand(static_cast<unsigned int>(time(nullptr)));
+}
+
+BattleAction choose_action() {
+    int random_choice = rand() % 100;
+
+    if (random_choice < 10) {
+        return NORMAL_ATTACK;        
+    }
+    else if (random_choice < 10) {
+        return SPIKE_ATTACK;        
+    }
+    else {
+        return POISON_INFECTION;      
+    }
 }

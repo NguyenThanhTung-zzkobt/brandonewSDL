@@ -11,6 +11,7 @@ static Map* activeMapInstance = nullptr;
 
 
 
+
 static void cleanup_map() {
 	if (!texture) return;
 	Texture* current_texture = texture;
@@ -80,7 +81,9 @@ static void render(SDL_Renderer* renderer) {
 				};
 
 				if (texture_to_use->texture) {
+					//SDL_SetTextureAlphaMod(texture_to_use->texture, 128);
 					SDL_RenderTexture(renderer, texture_to_use->texture, &src, &dst);
+					//SDL_SetTextureAlphaMod(texture_to_use->texture, 255);
 				}
 			}
 		}
@@ -110,6 +113,12 @@ static void render(SDL_Renderer* renderer) {
 }
 
 void Map::init_map(SDL_Renderer* renderer) {
+	while (true) {
+		int map_index = find_entity("map");
+		if (map_index == -1) break;
+		destroy_entity(map_index);
+	}
+
 	activeMapInstance = this;
 	const char map_path[] = "tiled/map.json";
 	map = cute_tiled_load_map_from_file(map_path, NULL);
@@ -187,15 +196,21 @@ void Map::init_map(SDL_Renderer* renderer) {
 			current_texture->next = NULL;
 		}
 	}
+	
 
-	Entity map_e = { 0 };
+
+	Entity map_e;
 	strncpy_s(map_e.name, "map", MAX_NAME_LENGTH - 1);
 	map_e.render = render;
 	map_e.cleanup = cleanup_map;
-	map_e.handle_events = NULL;
-	map_e.update = NULL;
+	map_e.handle_events = nullptr; 
+	map_e.update = nullptr;
+	map_e.texture = nullptr; 
 
 	create_entity(map_e);
+	currentMap = 0;
+	int map_new_index = find_entity("map");
+	swap_entities(0, map_new_index);
 }
 
 void Map::processCollisionLayer(cute_tiled_layer_t* layer) {
@@ -257,4 +272,26 @@ int Map::getWidth() const {
 
 int Map::getHeight() const {
 	return map ? map->height : 0;
+}
+
+int Map::getCurrentMapId() const {
+	return currentMap;
+}
+
+
+
+void Map::loadMap(int map_id, SDL_Renderer* renderer) {
+	//mapInstance.init_map(renderer);
+	 //switch (map_id) {
+	 //   case 0:
+	mapInstance.init_map(renderer);
+	//     break;
+   //  case 1:
+	//     mapInstance.init_map(renderer);
+	//     break;
+	// default:
+	 //    SDL_Log("Unknown map ID: %d\n", map_id);
+	//     break;
+ //}
+	mapInstance.currentMap = map_id;
 }
