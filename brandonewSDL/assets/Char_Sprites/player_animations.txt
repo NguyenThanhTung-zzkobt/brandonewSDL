@@ -1,0 +1,83 @@
+# Hoạt ảnh đứng yên nhìn xuống (khung hình đầu tiên hàng 1)
+animation idle_down true
+frame 17 14 15 18 0.2
+
+# Hoạt ảnh đi bộ xuống (3 khung hình tiếp theo hàng 2)
+animation walk_down true
+frame 17 14 15 18 0.15
+frame 33 14 15 18 0.15
+frame 49 14 15 18 0.15
+
+# Hoạt ảnh đứng yên nhìn trái (khung hình thứ 4 hàng 1)
+animation idle_left true
+frame 17 31 15 18 0.2
+
+# Hoạt ảnh đi bộ trái (3 khung hình tiếp theo sau idle_up ở hàng 2)
+animation walk_left true
+frame 17 31 15 18 0.15
+frame 33 31 15 18 0.15
+frame 49 31 15 18 0.15
+
+# Hoạt ảnh đứng yên nhìn phải (khung hình thứ 7 hàng 1)
+animation idle_right true
+frame 16 47 16 18 0.2
+
+# Hoạt ảnh đi bộ phải (3 khung hình tiếp theo sau idle_left ở hàng 2)
+animation walk_right true
+frame 16 47 16 18 0.15
+frame 32 47 16 18 0.15
+frame 48 47 16 18 0.15
+
+# Hoạt ảnh đứng yên nhìn lên (khung hình thứ 10 hàng 1)
+animation idle_up true
+frame 16 65 16 18 0.2
+
+# Hoạt ảnh đi bộ lên (3 khung hình tiếp theo sau idle_right ở hàng 2)
+animation walk_up true
+frame 16 65 16 18 0.15
+frame 32 65 16 18 0.15
+frame 48 65 16 18 0.15
+
+# Hoạt ảnh tấn công (hàng 3, 4 khung hình đầu tiên)
+animation attack_down false
+frame 1 86 16 18 0.1
+frame 17 86 16 18 0.1
+frame 33 86 16 18 0.1
+frame 49 86 16 18 0.2
+
+# Hoạt ảnh tấn công lên (hàng 4, 4 khung hình đầu tiên)
+animation attack_up false
+frame 1 104 16 18 0.1
+frame 17 104 16 18 0.1
+frame 33 104 16 18 0.1
+frame 49 104 16 18 0.2
+
+# Hoạt ảnh tấn công trái (hàng 5, 4 khung hình đầu tiên)
+animation attack_left false
+frame 0 122 17 18 0.1
+frame 17 122 17 18 0.1
+frame 34 122 17 18 0.1
+frame 51 122 17 18 0.2
+
+# Hoạt ảnh tấn công phải (hàng 6, 4 khung hình đầu tiên)
+animation attack_right false
+frame 0 140 17 18 0.1
+frame 17 140 17 18 0.1
+frame 34 140 17 18 0.1
+frame 51 140 17 18 0.2
+
+# Hoạt ảnh đặc biệt 1 (hàng 7, 5 khung hình đầu)
+animation special_1 true
+frame 1 158 15 18 0.1
+frame 16 158 15 18 0.1
+frame 31 158 15 18 0.1
+frame 46 158 15 18 0.1
+frame 61 158 15 18 0.2
+
+# Hoạt ảnh đặc biệt 2 (hàng 8, 5 khung hình đầu)
+animation special_2 true
+frame 1 176 15 18 0.1
+frame 16 176 15 18 0.1
+frame 31 176 15 18 0.1
+frame 46 176 15 18 0.1
+frame 61 176 15 18 0.2

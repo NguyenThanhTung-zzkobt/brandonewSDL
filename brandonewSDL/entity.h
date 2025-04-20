@@ -1,7 +1,8 @@
 
 #pragma once
 #include <cstring>
-
+#include <vector>
+#include <string>
 #include <SDL3/SDL.h>
 
 #define MAX_ENTITIES 100
@@ -25,11 +26,15 @@ public:
     SDL_FPoint position;
     float detection_radius;
     bool triggered;
+    int MY_LEVEL;
 
     float max_hp;
     float current_hp;
     int attack_power;
     StatusEffect active_status;
+    std::string weakness;
+    std::string selected_weapon;
+    std::vector<int> inventory;
 
     float displayed_hp;
 

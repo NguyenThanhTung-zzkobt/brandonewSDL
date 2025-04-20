@@ -7,9 +7,15 @@
 #include "SDL3/SDL_surface.h"
 #include "vector"
 #include "string"
+#include "map"
+
+
 #include "time_manager.h"
 #include "music.h"
 #include "save.h"
+
+
+class Item;
 
 enum GameState {
 	STATE_MAIN_MENU,
@@ -25,6 +31,13 @@ enum OptionsOrigin {
 	OPTIONS_FROM_MAIN_MENU,
 	OPTIONS_FROM_PAUSE_MENU
 };
+
+enum InGameState {
+	NORMAL,
+	INVENTORY
+};
+extern InGameState in_game_state;
+
 
 extern OptionsOrigin options_origin;
 
@@ -53,6 +66,8 @@ void update_options_ui(SDL_Renderer* renderer, SDL_Window* window, const SDL_Eve
 void render_credits_ui(SDL_Renderer* renderer);
 void update_credits_ui(const SDL_Event* event);
 
+
+
 extern int menu_select;
 extern GameState current_game_state;
 extern menuUI menu_ui;
@@ -66,3 +81,28 @@ extern void switch_game_state(GameState new_state, SDL_Renderer* renderer);
 
 extern bool menu_ui_initialized;
 extern bool option_menu_ui_initialized;
+
+
+
+
+class InventoryEntity {
+public:
+	SDL_Texture* texture;  
+	SDL_FRect frect;           
+	TTF_Font* font;          
+	int selectedItemIndex;
+	bool showSubScreen = false;
+	int selectedItemID = -1;
+
+
+	InventoryEntity();
+	~InventoryEntity();
+	void init(SDL_Renderer* renderer, std::map<int, Item>& itemMap);
+	void render(SDL_Renderer* renderer);
+	void cleanup();
+	void update(float dt); 
+	void handle_events(SDL_Event* event); 
+	void renderSubScreen(SDL_Renderer* renderer);
+
+};
+extern InventoryEntity inventoryEntity;

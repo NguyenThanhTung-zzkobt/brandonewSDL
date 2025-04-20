@@ -112,6 +112,12 @@ void render() {
 		if (is_in_battle()) {
 			render_battle(renderer);
 		}
+		else if (in_game_state == InGameState::INVENTORY) {
+			inventoryEntity.render(renderer);
+			if (inventoryEntity.showSubScreen) {
+				inventoryEntity.renderSubScreen(renderer);
+			}
+		}
 		else {
 			for (int i = 0; i < entities_count; i++) {
 				if (entities[i].render != nullptr && entities[i].render != (void(*)(SDL_Renderer*))0xcccccccccccccccc) {
@@ -192,19 +198,50 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 		break;
 	case STATE_INGAME:
 		if (event->type == SDL_EVENT_KEY_DOWN) {
-			if (event->key.key == SDLK_ESCAPE) {
-				current_game_state = STATE_PAUSE_MENU;
-				SDL_Log("Game Paused");
-				break; // Important: Exit the switch case after handling ESC
+			if (!is_in_battle()) {
+				if (event->key.key == SDLK_ESCAPE && in_game_state != InGameState::INVENTORY) {
+					current_game_state = STATE_PAUSE_MENU;
+					SDL_Log("Game Paused");
+					return SDL_APP_CONTINUE;
+				}
+
+				// Toggle inventory open/close
+				if (event->key.key == SDLK_I) {
+					if (in_game_state == InGameState::INVENTORY) {
+						in_game_state = InGameState::NORMAL;
+						inventoryEntity.cleanup();
+						SDL_Log("Inventory Closed");
+					}
+					else {
+						in_game_state = InGameState::INVENTORY;
+						inventoryEntity.init(renderer, itemMap);
+						SDL_Log("Inventory Opened");
+					}
+					return SDL_APP_CONTINUE;
+				}
 			}
 		}
+		if (in_game_state == InGameState::INVENTORY) {
+			inventoryEntity.handle_events(event);  
+			return SDL_APP_CONTINUE;
+		}
+
+		// Battle input
 		if (is_in_battle()) {
+			if (current_ui_mode == WEAPON_SELECT) {
+				update_weapon_options_ui(event);
+			}
+			if (current_ui_mode == ITEM_SELECT) {
+
+				update_item_options_ui(event);
+			}
 
 			update_battle_ui(event);
 		}
 		else {
-
-			//  handle_events(event);  //  Original game event handling
+			if (in_game_state == InGameState::INVENTORY) {
+				
+			}
 		}
 		break;
 	case STATE_PAUSE_MENU:

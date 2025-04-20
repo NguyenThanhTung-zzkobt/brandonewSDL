@@ -61,6 +61,7 @@ void init_monster1(SDL_Renderer* renderer) {
     Monster.max_hp = 100;
     Monster.current_hp = Monster.max_hp;
     Monster.attack_power = 8;
+    Monster.weakness = "Axe";
     SDL_SetTextureScaleMode(Monster.texture, SDL_SCALEMODE_NEAREST);
     strncpy_s(Monster.entity.name, "bomberplant", MAX_NAME_LENGTH - 1);
     Monster.entity.position = Monster.position;
@@ -68,9 +69,11 @@ void init_monster1(SDL_Renderer* renderer) {
     Monster.entity.max_hp = Monster.max_hp;
     Monster.entity.current_hp = Monster.current_hp;
     Monster.entity.displayed_hp = (float)Monster.current_hp;
+    Monster.entity.weakness = Monster.weakness;
     //SDL_Log("monster current hp: %d", Monster.current_hp);
     //SDL_Log("monster displayed hp: %.2f", Monster.entity.displayed_hp);
     Monster.entity.attack_power = Monster.attack_power;
+
 
 
     Monster.entity.update = [](float dt) {
@@ -94,7 +97,7 @@ void init_monster1(SDL_Renderer* renderer) {
     }
 
    
-    phantom1.position = { 400, 200 };
+    phantom1.position = { 380, 200 };
     phantom1.detection_radius = 40.0f;
     phantom1.triggered = false;
     phantom1.max_hp = 50;
@@ -144,10 +147,10 @@ void seed_random() {
 BattleAction choose_action() {
     int random_choice = rand() % 100;
 
-    if (random_choice < 10) {
+    if (random_choice < 70) {
         return NORMAL_ATTACK;        
     }
-    else if (random_choice < 10) {
+    else if (random_choice < 40) {
         return SPIKE_ATTACK;        
     }
     else {

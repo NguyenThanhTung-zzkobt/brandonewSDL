@@ -7,63 +7,69 @@
 #include "time_manager.h"
 #include "battle.h"
 #include "vector"
+#include "string"
+#include "map"
+#include "animated.h"
+
+
+class Item;
 
 class Map;
 
-
-
-class Player  {
+class Player {
 public:
-	SDL_FPoint position;
-	float velocity_x;
-	float velocity_y;
-	SDL_Texture* texture;
-	Entity entity;
-	Map* map_ref = nullptr;
+    SDL_FPoint position;
+    float velocity_x;
+    float velocity_y;
+    SDL_Texture* texture;
+    Entity entity;
+    Map* map_ref = nullptr;
+    std::string selected_weapon;
 
-	float max_hp;
-	float current_hp;
-	int attack_power;
-	StatusEffect active_status;
+    float max_hp;
+    float current_hp;
+    int attack_power;
+    StatusEffect active_status;
+    int MY_LEVEL;
 
-	std::vector<int> inventory;
+    std::map<int, Item> item_data; // Ensure Item is defined
+    std::vector<std::string> weapons;
+    std::vector<int> inventory;
+
+    Player();
+    std::vector<std::string>& getWeapons() {
+        return weapons;
+    }
 
 
-	Player();
 
-	void update(float dt);
-	void render(SDL_Renderer* r);
-	void setMap(Map* map);
-	bool checkCollision(float x ,float y);
-	void cleanup();
-	void set_position(int x, int y);
+    void update(float dt);
+    void render(SDL_Renderer* r);
+    void setMap(Map* map);
+    bool checkCollision(float x, float y);
+    void cleanup();
+    void set_position(int x, int y);
 
-	void addItem(int itemID);
-	bool removeItem(int itemID);
-	int getInventorySize();
-	int getItemCount(int itemID);
-	void displayInventory();
-	bool hasItem(int itemID);
-	bool canAddItem();
-	void clearInventory();
-	bool removeItemByIndex(int index);
+    void addItem(int itemID, const std::map<int, Item>& itemMap);
+    bool removeItem(int itemID, const std::map<int, Item>& itemMap);
+    int getInventorySize();
+    int getItemCount(int itemID);
+    void displayInventory(const std::map<int, Item>& itemMap);
+    bool hasItem(int itemID);
+    bool canAddItem();
+    void clearInventory();
+    bool removeItemByIndex(int index, const std::map<int, Item>& itemMap);
+    int getItemID(const std::string& itemName, const std::map<int, Item>& itemMap);
+    Animated animator;
 
 private:
-	static const int MAX_INVENTORY_SIZE = 20;
+    static const int MAX_INVENTORY_SIZE = 20;
 };
 
-
-
-
-
 typedef struct {
-	float w, h;
+    float w, h;
 } SpriteSize;
-
-
 
 void reload_player_texture(SDL_Renderer* renderer);
 void init_player(SDL_Renderer* renderer);
 extern Player PLAYER;
-
-

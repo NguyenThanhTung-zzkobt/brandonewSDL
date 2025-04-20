@@ -1,7 +1,5 @@
 #include "battle.h"
-#include "ui.h"
-#include "monster1.h"
-#include "music.h"
+
 
 
 BattleState current_battle_state = BATTLE_NONE;
@@ -51,6 +49,7 @@ void render_battle(SDL_Renderer* renderer) {
     //Entity* PLAYER_entity = &entities[find_entity("PLAYER")];
     draw_battle_ui(renderer, &PLAYER.entity, current_enemy); // custom UI drawing
     render_battle_ui(renderer);
+    //trigger_weapon_ui(renderer);
 }
 
 
@@ -80,6 +79,27 @@ void end_battle_lost() {
     SDL_Log("Player lost the battle!");
 }
 void end_battle_won() {
+
+    PLAYER.addItem(1, itemMap);
+    int temp = PLAYER.entity.MY_LEVEL;
+    PLAYER.entity.MY_LEVEL++;
+    if(temp < PLAYER.entity.MY_LEVEL) {
+        PLAYER.entity.max_hp = PLAYER.entity.max_hp + 5;
+        PLAYER.entity.current_hp = PLAYER.entity.current_hp + PLAYER.entity.MY_LEVEL;
+        PLAYER.entity.attack_power = PLAYER.entity.attack_power + 1;
+    }
+    SDL_Log("Player Created:");
+    SDL_Log("  Position: x = %f, y = %f", PLAYER.entity.position.x, PLAYER.entity.position.y);
+    SDL_Log("  Level: %d", PLAYER.entity.MY_LEVEL);
+    SDL_Log("  Max HP: %f", PLAYER.entity.max_hp);
+    SDL_Log("  Current HP: %f", PLAYER.entity.current_hp);
+    SDL_Log("  Attack Power: %d", PLAYER.entity.attack_power);
+    SDL_Log("  Active Status: Type = %d, Duration = %d, Damage per Turn = %d",
+        PLAYER.entity.active_status.type, PLAYER.entity.active_status.duration, PLAYER.entity.active_status.damagePerTurn);
+    SDL_Log("  Selected Weapon: %s", PLAYER.entity.selected_weapon.c_str());
+    SDL_Log("  Weapons: ");
+
+
     cleanup_battle_ui();
     current_battle_state = BATTLE_NONE;
 
@@ -132,5 +152,20 @@ void execute_poison_infection(Entity* attacker, Entity* target) {
     }
     else {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error: execute_poison_infection target is not a Player!");
+    }
+}
+
+void execute_damage_from_player(Entity* target) {
+    if (!target) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error: execute_damge_from_player received a null target pointer!");
+        return;
+    }
+
+
+    if (PLAYER.entity.selected_weapon == target->weakness) {
+        target->current_hp -= PLAYER.entity.attack_power + PLAYER.entity.attack_power * 0.2;
+    }
+    else  {
+        target->current_hp -= PLAYER.entity.attack_power;
     }
 }

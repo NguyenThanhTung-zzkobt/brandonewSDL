@@ -16,6 +16,7 @@ enum BattleAction {
 
 };
 
+
 class Monster1 {
 public:
 	SDL_FPoint position;
@@ -29,6 +30,7 @@ public:
 	float current_hp;
 	float max_hp;
 	int attack_power;
+	std::string weakness;
 
 	void render(SDL_Renderer* renderer);
 	void update();

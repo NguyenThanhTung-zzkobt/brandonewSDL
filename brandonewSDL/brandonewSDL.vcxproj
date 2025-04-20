@@ -145,9 +145,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="animated.cpp" />
     <ClCompile Include="battle.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="entity.cpp" />
+    <ClCompile Include="item.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="monster1.cpp" />
@@ -182,15 +184,18 @@
   <ItemGroup>
     <Image Include="assets\Char_Sprites\char_spritesheet.png" />
     <Image Include="assets\menu.png" />
+    <Image Include="assets\menu1.png" />
     <Image Include="Overworld_Tileset.png" />
     <Image Include="water_tile_anim_strip_8.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="animated.h" />
     <ClInclude Include="battle.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="external\cute_tiled.h" />
     <ClInclude Include="global.h" />
+    <ClInclude Include="item.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="monster1.h" />
@@ -213,6 +218,9 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="external\Open_Sans\static\OpenSans-Regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="assets\Char_Sprites\player_animations.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

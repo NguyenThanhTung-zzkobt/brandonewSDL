@@ -158,10 +158,24 @@ void update_pause_menu_ui(SDL_Event* event) {
             }
 
             else if (pause_ui.selecting_options[pause_ui.pause_select] == "MAIN MENU") {
-                ///cleanup_pause_menu_ui();
+                // Reset player data
+                PLAYER.position.x = 100;  // Or your initial position
+                PLAYER.position.y = 100;
+                PLAYER.current_hp = PLAYER.max_hp;
+                PLAYER.inventory.clear();
+
+                // Destroy specific monster entities
+                for (int i = 0; i < entities_count; ++i) {
+                    if (i == find_entity("bomberplant") || i == find_entity("phantom")) {
+                        destroy_entity(i);
+                        i--; // Important: Adjust index after destroying
+                    }
+                }
+
                 current_game_state = STATE_MAIN_MENU;
                 cleanup_pause_menu_ui();
             }
+
 
             break;
         default:

@@ -7,6 +7,7 @@
 #include "monster1.h"
 #include "camera.h"
 #include "map.h"
+#include "item.h"
 #include <fstream>  
 #include <cstring>
 #include <vector>

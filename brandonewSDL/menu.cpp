@@ -3,13 +3,13 @@
 GameState current_game_state = STATE_MAIN_MENU;
 OptionsOrigin options_origin;
 menuUI menu_ui;
+InGameState in_game_state;
 
 static SDL_Surface* background_surface;
 static SDL_Texture* background_texture = nullptr;
 
 
-
-
+InventoryEntity inventoryEntity;
 
 
 
@@ -50,7 +50,7 @@ void init_menu_ui(SDL_Renderer* renderer) {
 
     }
 
-    background_surface = IMG_Load("assets/menu.png");
+    background_surface = IMG_Load("assets/menu1.png");
     if (!background_surface) {
         SDL_Log("Failed to load background image %s", SDL_GetError());
     }
@@ -142,7 +142,7 @@ void update_menu_ui(const SDL_Event* event){
                 PLAYER.position.y = 100;
                 PLAYER.current_hp = PLAYER.max_hp; 
                 PLAYER.inventory.clear();           
-
+                init_monster1(renderer);
                 mapInstance.loadMap(0, renderer); 
 
                 switch_game_state(STATE_INIT_GAME, renderer);
@@ -374,45 +374,44 @@ void render_credits_ui(SDL_Renderer* renderer) {
         dest.y = 0;
         SDL_RenderTexture(renderer, background_texture, NULL, NULL);
     }
-    TTF_Font* credits_font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 12); 
+    TTF_Font* credits_font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 12);
     if (!credits_font) {
         SDL_Log("No font loaded. Cannot render credits.");
         return;
     }
-    menu_ui.text_color = { 255 , 0 , 0 , 255 };
+    // Store the original text color
+    SDL_Color original_text_color = menu_ui.text_color;
 
     std::vector<std::string> credits_text = {
-    "CREDITS",
-    "",
-    "Programming: ",
-    "NGUYEN THANH TUNG , DAM VAN TEU, DUONG CONG TRUC",
-    "",
-    "Art:",
-    "DUONG CONG TRUC",
-    "",
-    "Music:",
-    "credit to Yasunori Nishiki for music",
-    "",
-    "Press ESC to return"
+        "CREDITS",
+        "",
+        "Programming: ",
+        "NGUYEN THANH TUNG , DAM VAN TEU, DUONG CONG TRUC",
+        "",
+        "Art:",
+        "DUONG CONG TRUC",
+        "",
+        "Music:",
+        "credit to Yasunori Nishiki for music",
+        "",
+        "Press ESC to return"
     };
 
     int x = 50;
     int y = 20;
     for (const auto& line : credits_text) {
 
-            if (line == "CREDITS") {
-                menu_ui.text_color = { 255 , 0 , 0 , 255 };
-            }
-            else if (line.find("Programming") != std::string::npos) {
-                menu_ui.text_color = { 255 , 0 , 0 , 255 };
-            }
-            else {
-                menu_ui.text_color = { 255 , 0 , 0 , 255 };
-            }
+        if (line == "CREDITS") {
+            menu_ui.text_color = { 0, 0, 0, 255 };
+        }
+        else if (line.find("Programming") != std::string::npos) {
+            menu_ui.text_color = { 0, 0, 0, 255 };
+        }
+        else {
+            menu_ui.text_color = { 0, 0, 0, 255 }; // You had the same color here.  If different, change it.
+        }
 
-
-
-        SDL_Surface* surface = TTF_RenderText_Solid(credits_font, line.c_str(),0, menu_ui.text_color);
+        SDL_Surface* surface = TTF_RenderText_Solid(credits_font, line.c_str(), 0,menu_ui.text_color);
         if (!surface) continue;
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
         if (!texture) { SDL_DestroySurface(surface); continue; }
@@ -422,6 +421,9 @@ void render_credits_ui(SDL_Renderer* renderer) {
         SDL_DestroyTexture(texture);
         SDL_DestroySurface(surface);
     }
+    // Restore the original text color
+    menu_ui.text_color = original_text_color;
+    TTF_CloseFont(credits_font); // важно закрывать шрифт
 }
 
 void update_credits_ui(const SDL_Event* event) {
@@ -451,7 +453,7 @@ void switch_game_state(GameState new_state, SDL_Renderer* renderer) {
     // For example, if new_state is the ID of a level, you would load the level here.
     switch (new_state) {
     case STATE_MAIN_MENU:
-        // Initialize first state
+        
         break;
     case STATE_INIT_GAME:
         // Initialize second state
@@ -465,3 +467,225 @@ void switch_game_state(GameState new_state, SDL_Renderer* renderer) {
     }
 }
 
+
+InventoryEntity::InventoryEntity() : texture(nullptr), font(nullptr), selectedItemIndex(-1) {
+    frect = { 0, 0, 0, 0 }; // Initialize to zero
+}
+
+// Destructor
+InventoryEntity::~InventoryEntity() {
+    cleanup(); // Call cleanup to free resources
+}
+
+// Initialization
+void InventoryEntity::init(SDL_Renderer* renderer, std::map<int, Item>& itemMap) {
+
+    initializeItems(itemMap);
+    PLAYER.item_data = itemMap;
+    
+    // Set the rectangle for the inventory display
+    frect.x = 50;  // Example position
+    frect.y = 50;  // Example position
+    frect.w = 300; // Example width
+    frect.h = 200; // Example height
+
+    // Initialize font (if you want to display text)
+    font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 10); // Replace with your font file
+    if (!font) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_OpenFont: %s\n", SDL_GetError());
+        // Handle error, perhaps set font to NULL and continue without text rendering
+    }
+    selectedItemIndex = 0;
+}
+
+// Rendering
+void InventoryEntity::render(SDL_Renderer* renderer) {
+    // Render the inventory background
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &frect);
+
+    if (font) {
+        SDL_Color textColor = { 255, 255, 255, 255 };
+        SDL_Surface* titleSurface = TTF_RenderText_Solid(font, "Inventory:", 0, textColor);
+        if (titleSurface) {
+            SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
+            if (titleTexture) {
+                SDL_FRect titleFRect = { frect.x + 10, frect.y + 10, titleSurface->w, titleSurface->h };
+                SDL_RenderTexture(renderer, titleTexture, NULL, &titleFRect);
+                SDL_DestroyTexture(titleTexture);
+            }
+            SDL_DestroySurface(titleSurface);
+        }
+
+        int yOffset = frect.y + 40;
+
+        for (size_t i = 0; i < PLAYER.inventory.size(); ++i) {
+            int itemID = PLAYER.inventory[i];
+            std::string itemName = "Invalid Item";
+            if (PLAYER.item_data.find(itemID) != PLAYER.item_data.end()) { // Use PLAYER.item_data
+                itemName = "[" + std::to_string(i) + "] " + PLAYER.item_data[itemID].name; // Access item from PLAYER
+            }
+            std::string itemText = itemName;
+            SDL_Surface* textSurface = TTF_RenderText_Solid(font, itemText.c_str(), 0, textColor);
+            if (!textSurface) {
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_RenderText_Solid: %s\n", SDL_GetError());
+                continue;
+            }
+            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+            if (!textTexture) {
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateTextureFromSurface: %s\n", SDL_GetError());
+                SDL_DestroySurface(textSurface);
+                continue;
+            }
+
+            SDL_FRect textFRect = { frect.x + 10, yOffset, textSurface->w, textSurface->h };
+            if (i == selectedItemIndex) {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
+                SDL_FRect highlightRect = textFRect;
+                highlightRect.x -= 5;
+                highlightRect.w += 10;
+                SDL_RenderFillRect(renderer, &highlightRect);
+            }
+            SDL_RenderTexture(renderer, textTexture, NULL, &textFRect);
+
+            SDL_DestroySurface(textSurface);
+            SDL_DestroyTexture(textTexture);
+            yOffset += 30;
+        }
+    }
+    if (showSubScreen) {
+        renderSubScreen(renderer);
+    }
+}
+
+// Cleanup
+void InventoryEntity::cleanup() {
+    if (texture) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
+    if (font) {
+        TTF_CloseFont(font);
+        font = nullptr;
+    }
+}
+
+
+
+void InventoryEntity::handle_events(SDL_Event* event) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        switch (event->key.key) {
+        case SDLK_DOWN:
+            selectedItemIndex++;
+            if (selectedItemIndex >= PLAYER.inventory.size()) {
+                selectedItemIndex = PLAYER.inventory.size() - 1;
+            }
+            break;
+        case SDLK_UP:
+            selectedItemIndex--;
+            if (selectedItemIndex < 0) {
+                selectedItemIndex = 0;
+            }
+            break;
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+            if (selectedItemIndex >= 0 && selectedItemIndex < PLAYER.inventory.size()) {
+                selectedItemID = PLAYER.inventory[selectedItemIndex];
+                SDL_Log("Use Item ID: %d ", selectedItemID);
+                if (PLAYER.hasItem(selectedItemID)) {
+                    itemUsage(selectedItemID, itemMap);
+                    
+
+                }
+            }
+            break;
+        case SDLK_E: 
+            if (selectedItemIndex >= 0 && selectedItemIndex < PLAYER.inventory.size()) {
+                showSubScreen = true;
+                selectedItemID = PLAYER.inventory[selectedItemIndex];
+                SDL_Log("Show Subscreen for Item ID: %d", selectedItemID);
+            }
+            break;
+        case SDLK_ESCAPE:
+            showSubScreen = false;
+            break;
+        }
+    }
+}
+
+void InventoryEntity::renderSubScreen(SDL_Renderer* renderer) {
+    // Define the position and size of the sub-screen, relative to the main inventory
+    SDL_FRect subScreenRect;
+    subScreenRect.x = frect.x + frect.w / 2 - 40; // Center relative to inventory
+    subScreenRect.y = frect.y + frect.h / 2 - 75; // center relative to inventory
+    subScreenRect.w = 200;
+    subScreenRect.h = 150;
+
+    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 200);
+    SDL_RenderFillRect(renderer, &subScreenRect);
+
+    // Show description based on current selection
+    if (font && selectedItemIndex >= 0 && selectedItemIndex < PLAYER.inventory.size()) {
+        int itemID = PLAYER.inventory[selectedItemIndex];
+
+        // Make sure itemMap contains the item
+        auto it = PLAYER.item_data.find(itemID);  // Access PLAYER's item_data
+        if (it != PLAYER.item_data.end()) {
+            const Item& item = it->second;
+
+            SDL_Color textColor = { 255, 255, 255, 255 };
+
+            SDL_Surface* descriptionSurface = TTF_RenderText_Solid_Wrapped(
+                font, item.description.c_str(),0, textColor, subScreenRect.w - 20
+            );
+
+            if (descriptionSurface) {
+                SDL_Texture* descriptionTexture = SDL_CreateTextureFromSurface(renderer, descriptionSurface);
+                if (descriptionTexture) {
+                    SDL_FRect descriptionRect = {
+                        subScreenRect.x + 10,
+                        subScreenRect.y + 10,
+                        (float)descriptionSurface->w,
+                        (float)descriptionSurface->h
+                    };
+                    SDL_RenderTexture(renderer, descriptionTexture, NULL, &descriptionRect);
+                    SDL_DestroyTexture(descriptionTexture);
+                }
+                SDL_DestroySurface(descriptionSurface);
+            }
+
+            // Render "Return" and "Use" options
+            SDL_Surface* returnSurface = TTF_RenderText_Solid(font, "Return",0, textColor);
+            SDL_Surface* useSurface = TTF_RenderText_Solid(font, "Use",0, textColor);
+            if (returnSurface && useSurface) {
+                SDL_Texture* returnTexture = SDL_CreateTextureFromSurface(renderer, returnSurface);
+                SDL_Texture* useTexture = SDL_CreateTextureFromSurface(renderer, useSurface);
+                if (returnTexture && useTexture) {
+                    SDL_FRect returnRect = {
+                        subScreenRect.x + 10,
+                        subScreenRect.y + subScreenRect.h - 40,
+                        (float)returnSurface->w,
+                        (float)returnSurface->h
+                    };
+                    SDL_FRect useRect = {
+                        subScreenRect.x + subScreenRect.w - useSurface->w - 10,
+                        subScreenRect.y + subScreenRect.h - 40,
+                        (float)useSurface->w,
+                        (float)useSurface->h
+                    };
+
+                    SDL_RenderTexture(renderer, returnTexture, NULL, &returnRect);
+                    SDL_RenderTexture(renderer, useTexture, NULL, &useRect);
+
+                    SDL_DestroyTexture(returnTexture);
+                    SDL_DestroyTexture(useTexture);
+                }
+                SDL_DestroySurface(returnSurface);
+                SDL_DestroySurface(useSurface);
+            }
+        }
+        else {
+            SDL_Log("Item ID %d not found in item map!", itemID);
+        }
+    }
+}

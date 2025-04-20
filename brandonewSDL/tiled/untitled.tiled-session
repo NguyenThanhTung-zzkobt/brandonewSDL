@@ -9,12 +9,32 @@
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "C:/Users/Admin/Downloads/hang_dong_map2.tmx": {
+            "scale": 0.41463541666666665,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 986.4087426202739,
+                "y": 389.49880668257754
+            }
+        },
+        "C:/Users/Admin/Downloads/hang_dong_map2.tmx#E Wall 2": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Admin/Downloads/hang_dong_map2.tmx#N Wall 2": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Admin/Downloads/hang_dong_map2.tmx#Overworld_Tileset": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Admin/Downloads/hang_dong_map2.tmx#nền đất": {
+            "scaleInDock": 1
+        },
         "map.json": {
             "scale": 2,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 328,
-                "y": 193.75
+                "x": 227.5,
+                "y": 193.25
             }
         },
         "map.json#Overworld_Tileset": {
@@ -33,7 +53,8 @@
     ],
     "project": "untitled.tiled-project",
     "recentFiles": [
-        "map.json"
+        "map.json",
+        "C:/Users/Admin/Downloads/hang_dong_map2.tmx"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {

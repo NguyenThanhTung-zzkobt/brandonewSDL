@@ -1,4 +1,4 @@
-#include "player.h"
+﻿#include "player.h"
 #include "map.h"
 static SDL_Texture* player_texture = NULL;
 static SDL_FRect sprite_portion = { 17, 14 , 15 ,18 };
@@ -11,13 +11,20 @@ Player::Player() {
 	position.y = 107;
 	velocity_x = 0;
 	velocity_y = 0;
-	max_hp = 100.0;
+	MY_LEVEL = 1;
+	max_hp = 100.0 + MY_LEVEL * 5;
 	active_status.type = StatusEffect::Type::NONE;
 	active_status.duration = 0;
 	active_status.damagePerTurn = 0;
-	current_hp = 100.0;
-	attack_power = 5;
+	current_hp = 100.0 +MY_LEVEL;
+	attack_power = 15 + MY_LEVEL;
+	
 	texture = nullptr;
+	weapons = { "Sword", "Axe", "Bow", "Dagger"};
+	selected_weapon = "Sword";
+	inventory = {1};
+
+	std::vector<std::string>& getWeapons(); 
 }
 Player PLAYER;
 
@@ -81,14 +88,17 @@ void Player::cleanup() {
 
 void Player::update(float delta_time) {
 	const Uint8* keyboard_state = (const Uint8*)SDL_GetKeyboardState(NULL);
-
+	bool moved = false; // <<--- Thêm cờ kiểm tra di chuyển
 	// Vertical movement
 	if (keyboard_state[SDL_SCANCODE_W]) {
 		float new_y = PLAYER.position.y - movement_speed * delta_time;
 		// Check collision on both axes (horizontal and vertical)
 		if (!PLAYER.checkCollision(PLAYER.position.x, new_y)) {
+			SDL_Log("Player Update: >>> Trying to set animation: walk_up");
 			PLAYER.position.y = new_y;
-			sprite_portion = { 17, 14 , 15 ,18 };
+			//sprite_portion = { 17, 14 , 15 ,18 };
+			PLAYER.animator.setAnimation("walk_up"); // <<--- THÊM DÒNG NÀY
+			moved = true; // <<--- Đánh dấu đã di chuyển
 		}
 	}
 	if (keyboard_state[SDL_SCANCODE_S]) {
@@ -96,7 +106,9 @@ void Player::update(float delta_time) {
 		// Check collision on both axes (horizontal and vertical)
 		if (!PLAYER.checkCollision(PLAYER.position.x, new_y)) {
 			PLAYER.position.y = new_y;
-			sprite_portion = { 17, 14 , 15 ,18 };
+			//sprite_portion = { 17, 14 , 15 ,18 };
+			PLAYER.animator.setAnimation("walk_down"); // <<--- THÊM DÒNG NÀY
+			moved = true; // <<--- Đánh dấu đã di chuyển
 		}
 	}
 
@@ -106,7 +118,9 @@ void Player::update(float delta_time) {
 		// Check collision on both axes (horizontal and vertical)
 		if (!PLAYER.checkCollision(new_x, PLAYER.position.y)) {
 			PLAYER.position.x = new_x;
-			sprite_portion = { 17, 14 , 15 ,18 };
+			//sprite_portion = { 17, 14 , 15 ,18 };
+			PLAYER.animator.setAnimation("walk_left"); // <<--- THÊM DÒNG NÀY
+			moved = true; // <<--- Đánh dấu đã di chuyển
 		}
 	}
 	if (keyboard_state[SDL_SCANCODE_D]) {
@@ -114,9 +128,22 @@ void Player::update(float delta_time) {
 		// Check collision on both axes (horizontal and vertical)
 		if (!PLAYER.checkCollision(new_x, PLAYER.position.y)) {
 			PLAYER.position.x = new_x;
-			sprite_portion = { 17, 14 , 15 ,18 };
+			//sprite_portion = { 17, 14 , 15 ,18 };
+			PLAYER.animator.setAnimation("walk_right"); // <<--- THÊM DÒNG NÀY
+			moved = true; // <<--- Đánh dấu đã di chuyển
 		}
 	}
+	if (!moved) {
+		std::string current = PLAYER.animator.getCurrentAnimationName();
+		if (current == "walk_down") PLAYER.animator.setAnimation("idle_down");
+		else if (current == "walk_up") PLAYER.animator.setAnimation("idle_up");
+		else if (current == "walk_left") PLAYER.animator.setAnimation("idle_left");
+		else if (current == "walk_right") PLAYER.animator.setAnimation("idle_right");
+	}
+
+	animator.update(delta_time);
+
+
 	camera.x = PLAYER.position.x - camera.w / 2;
 	camera.y = PLAYER.position.y - camera.h / 2;
 
@@ -126,6 +153,10 @@ void Player::update(float delta_time) {
 	if (camera.x + camera.w >= 420) camera.x = 420 - camera.w;
 	if (camera.y + camera.h >= 240) camera.y = 240 - camera.h;
 }
+
+
+
+
 void Player::render(SDL_Renderer* renderer) {
 
 	float final_x = camera.w / 2 - sprite_size.w / 2;
@@ -143,6 +174,9 @@ void Player::render(SDL_Renderer* renderer) {
 		, sprite_size.w
 		, sprite_size.h 
 	};
+
+	PLAYER.animator.applyTo(sprite_portion);
+	//SDL_Log("Player Render - sprite_portion: y=%.1f, h=%.1f (Anim: %s)",sprite_portion.y, sprite_portion.h, PLAYER.animator.getCurrentAnimationName().c_str());
 	SDL_RenderTexture(renderer, PLAYER.texture, &sprite_portion, &PLAYER_rect);
 	SDL_SetTextureScaleMode(PLAYER.texture, SDL_SCALEMODE_LINEAR);
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -178,16 +212,21 @@ void init_player(SDL_Renderer* renderer) {
 	}
 	SDL_SetTextureScaleMode(PLAYER.texture, SDL_SCALEMODE_NEAREST);
 
-	PLAYER.entity.position = PLAYER.position;
-	PLAYER.entity.max_hp = PLAYER.max_hp;
+	PLAYER.animator.setTexture(PLAYER.texture);
+	PLAYER.animator.loadAnimations("assets/Char_Sprites/player_animations.txt");
+	PLAYER.animator.setAnimation("walk_down"); // animation mặc định
 
+	PLAYER.entity.position = PLAYER.position;
+	PLAYER.entity.MY_LEVEL = PLAYER.MY_LEVEL;
+	PLAYER.entity.max_hp = PLAYER.max_hp;
+	
 	PLAYER.entity.current_hp = PLAYER.current_hp;
 	PLAYER.entity.displayed_hp = (float)PLAYER.current_hp;
 	PLAYER.entity.active_status.type = PLAYER.active_status.type;
 	PLAYER.entity.active_status.duration = PLAYER.active_status.duration;
 	PLAYER.entity.active_status.damagePerTurn = PLAYER.active_status.damagePerTurn;
-	SDL_Log("Init: current_hp = %d, displayed_hp = %.2f", PLAYER.entity.current_hp, PLAYER.entity.displayed_hp);
 	PLAYER.entity.attack_power = PLAYER.attack_power;
+	PLAYER.entity.selected_weapon = PLAYER.selected_weapon;
 
 	strncpy_s(PLAYER.entity.name, "PLAYER", MAX_NAME_LENGTH - 1);
 	PLAYER.entity.update = [](float dt) {
@@ -221,78 +260,131 @@ void reload_player_texture(SDL_Renderer* renderer) {
 	if (!PLAYER.texture) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load player texture: %s", SDL_GetError());
 	}
+	else {
+		// Quan trọng: Cập nhật lại texture cho animator sau khi reload
+		PLAYER.animator.setTexture(PLAYER.texture);
+		SDL_SetTextureScaleMode(PLAYER.texture, SDL_SCALEMODE_NEAREST); // Đặt lại scale mode
+	}
 }
+
+
 
 void Player::set_position(int x, int y) {
 	this->position.x = static_cast<float>(x);
 	this->position.y = static_cast<float>(y);
 }
 
-void Player::addItem(int itemID) {
+
+
+void Player::addItem(int itemID, const std::map<int, Item>& itemMap) {
 	if (inventory.size() < MAX_INVENTORY_SIZE) {
-		inventory.push_back(itemID);
-		SDL_Log( "Added item %d",  itemID);
+		if (itemMap.find(itemID) != itemMap.end()) {
+			inventory.push_back(itemID);
+			SDL_Log("Added item: %s", itemMap.at(itemID).name.c_str());
+		}
+		else {
+			SDL_Log("Item ID %d not found in itemMap.", itemID);
+		}
 	}
 	else {
-		SDL_Log("Inventory is full. Cannot add item %d ", itemID);
+		SDL_Log("Inventory full. Cannot add item: %d", itemID);
 	}
 }
 
-bool Player::removeItem(int itemID) {
+bool Player::removeItem(int itemID, const std::map<int, Item>& itemMap) {
 	for (auto it = inventory.begin(); it != inventory.end(); ++it) {
 		if (*it == itemID) {
 			inventory.erase(it);
-			SDL_Log("Removed item %d from inventory.", itemID);
+			SDL_Log("Removed item: %s", itemMap.at(itemID).name.c_str());
 			return true;
 		}
 	}
-	SDL_Log("Item %d not found in inventory.", itemID);
+	SDL_Log("Item ID %d not found in inventory.", itemID);
 	return false;
 }
-bool Player::removeItemByIndex(int index) {
+
+
+bool Player::removeItemByIndex(int index, const std::map<int, Item>& itemMap) {
 	if (index >= 0 && index < inventory.size()) {
+		int itemID = inventory[index];
+		SDL_Log("Removed item at index %d: %s", index, itemMap.at(itemID).name.c_str());
 		inventory.erase(inventory.begin() + index);
-		SDL_Log("Removed item at index %d from inventory.", index);
 		return true;
 	}
-	SDL_Log("Invalid index: %d.", index);
+	SDL_Log("Invalid index: %d", index);
 	return false;
 }
-int Player::getInventorySize() {
-	return inventory.size();
-}
-int Player::getItemCount(int itemID) {
-	int count = 0;
-	for (int item : inventory) {
-		if (item == itemID) {
-			count++;
+
+
+
+
+void useItem(int itemID, std::map<int, Item>& itemMap) {
+	auto it = itemMap.find(itemID);
+	if (it != itemMap.end()) {
+		const Item& item = it->second;
+		SDL_Log("Using item: %s", item.name.c_str());
+
+		if (item.id == 1) { // Healing potion
+			PLAYER.entity.current_hp += 20; // or however much it heals
 		}
-	}
-	return count;
-}
-void Player::displayInventory() {
-	if (inventory.empty()) {
-		SDL_Log("Inventory is empty.");
+		else if (item.id == 2) {
+			PLAYER.entity.active_status = {}; // Remove status effect
+		}
+		// ... other effects
 	}
 	else {
-		SDL_Log("Inventory:");
-		for (size_t i = 0; i < inventory.size(); ++i) {
-			SDL_Log("[%d] %d", i, inventory[i]);
+		SDL_Log("Cannot use unknown item ID: %d", itemID);
+	}
+}
+
+
+void Player::displayInventory(const std::map<int, Item>& itemMap) {
+	if (inventory.empty()) {
+		SDL_Log("Inventory is empty.");
+		return;
+	}
+
+	SDL_Log("Inventory:");
+	for (size_t i = 0; i < inventory.size(); ++i) {
+		int itemID = inventory[i];
+		auto it = itemMap.find(itemID);
+		if (it != itemMap.end()) {
+			const Item& item = it->second;
+			SDL_Log("[%zu] %s - %s", i, item.name.c_str(), item.description.c_str());
+		}
+		else {
+			SDL_Log("[%zu] Unknown Item ID: %d", i, itemID);
 		}
 	}
 }
+
 bool Player::hasItem(int itemID) {
-	for (int item : inventory) {
-		if (item == itemID) {
-			return true;
-		}
-	}
-	return false;
+	return std::find(inventory.begin(), inventory.end(), itemID) != inventory.end();
 }
+
 bool Player::canAddItem() {
 	return inventory.size() < MAX_INVENTORY_SIZE;
 }
+
 void Player::clearInventory() {
 	inventory.clear();
 	SDL_Log("Inventory cleared.");
+}
+
+int Player::getInventorySize() {
+	return static_cast<int>(inventory.size());
+}
+
+int Player::getItemCount(int itemID) {
+	return std::count(inventory.begin(), inventory.end(), itemID);
+}
+
+
+int Player::getItemID(const std::string & itemName, const std::map<int, Item>&itemMap) {
+	for (const auto& pair : itemMap) {
+		if (pair.second.name == itemName) {
+			return pair.first;
+		}
+	}
+	return -1; // Return -1 to indicate not found
 }

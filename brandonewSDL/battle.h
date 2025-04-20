@@ -1,5 +1,9 @@
 #pragma once
+#include "ui.h"
+#include "monster1.h"
+#include "music.h"
 #include "player.h"
+#include "item.h"
 #include "global.h"
 class Monster1;
 
@@ -25,7 +29,7 @@ void end_battle_lost();
 void end_battle_won();
 void exit_battle();
 void execute_poison_infection(Entity* attacker, Entity* target);
-
+void execute_damage_from_player(Entity* target);
 
 extern bool is_player_turn;
 extern Turn current_turn;

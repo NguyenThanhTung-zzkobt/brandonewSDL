@@ -33,6 +33,7 @@ public:
     int currentMap;
     void loadMap(int map_id, SDL_Renderer* renderer);
 
+
 private:
     std::vector<std::vector<int>> collisionData;
     
