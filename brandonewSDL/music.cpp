@@ -85,6 +85,47 @@ void init_music() {
     volume_level = 100;
     Mix_VolumeMusic(volume_level);
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Audio Initialized.");
+
+    switch (current_game_state) {
+    case STATE_MAIN_MENU:
+        render_menu_ui(renderer);
+        break;
+    case STATE_OPTIONS_MENU:
+        render_options_ui(renderer);
+        break;
+    case STATE_CREDITS:
+        render_credits_ui(renderer);
+        break;
+    case STATE_INIT_GAME:
+        
+        break;
+    case STATE_INGAME:
+        if (is_in_battle()) {
+            render_battle(renderer);
+        }
+        else if (in_game_state == InGameState::INVENTORY) {
+            inventoryEntity.render(renderer);
+            if (inventoryEntity.showSubScreen) {
+                inventoryEntity.renderSubScreen(renderer);
+            }
+        }
+        else {
+            for (int i = 0; i < entities_count; i++) {
+                if (entities[i].render != nullptr && entities[i].render != (void(*)(SDL_Renderer*))0xcccccccccccccccc) {
+                    entities[i].render(renderer);
+                }
+            }
+        }
+        break;
+    case STATE_PAUSE_MENU:
+
+        break;
+    case END_GAME_WON:
+        render_end_game(renderer);
+    default:
+        break;
+    }
+    play_music("assets/OCTOPATH TRAVELER - opening menu-.mp3");
 }
 
 void cleanup_music() {

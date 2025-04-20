@@ -97,12 +97,13 @@ void init_monster1(SDL_Renderer* renderer) {
     }
 
    
-    phantom1.position = { 380, 200 };
+    phantom1.position = {200, 70 };
     phantom1.detection_radius = 40.0f;
     phantom1.triggered = false;
-    phantom1.max_hp = 50;
+    phantom1.max_hp = 65;
     phantom1.current_hp = phantom1.max_hp;
-    phantom1.attack_power = 13;
+    phantom1.attack_power = 8;
+    phantom1.weakness = "Sword";
     SDL_SetTextureScaleMode(phantom1.texture, SDL_SCALEMODE_NEAREST);
     strncpy_s(phantom1.entity.name, "phantom", MAX_NAME_LENGTH - 1);
     phantom1.entity.position = phantom1.position;
@@ -144,16 +145,31 @@ void seed_random() {
     srand(static_cast<unsigned int>(time(nullptr)));
 }
 
-BattleAction choose_action() {
-    int random_choice = rand() % 100;
+BattleAction choose_action(Entity* current_enemy) {
 
-    if (random_choice < 70) {
-        return NORMAL_ATTACK;        
+    int random_choice = rand() % 100;
+    SDL_Log("Enemy name: %s", current_enemy->name);
+    if (strcmp(current_enemy->name, "bomberplant") == 0) {
+        if (random_choice < 70) {
+            return NORMAL_ATTACK;
+        }
+        else if (random_choice < 90) {
+            return SPIKE_ATTACK;
+        }
+        else {
+            return POISON_INFECTION;
+        }
     }
-    else if (random_choice < 40) {
-        return SPIKE_ATTACK;        
-    }
-    else {
-        return POISON_INFECTION;      
+    else if (strcmp(current_enemy->name, "phantom") == 0) {
+        if (random_choice < 70) {
+            return NORMAL_ATTACK;
+        }
+        else if (random_choice < 90) {
+            return SOUL_STEAL;
+        }
+        else {
+            return CURSED;
+        }
     }
 }
+

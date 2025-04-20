@@ -3,7 +3,7 @@
 
 Entity entities[MAX_ENTITIES];
 int entities_count = 0;
-
+extern bool is_in_first_map = true;
 
 void create_entity(Entity entity) {
 

@@ -73,3 +73,13 @@ typedef struct {
 void reload_player_texture(SDL_Renderer* renderer);
 void init_player(SDL_Renderer* renderer);
 extern Player PLAYER;
+
+struct TriggerArea {
+    float x;       // X position of the area's top-left corner (map coordinates)
+    float y;       // Y position of the area's top-left corner (map coordinates)
+    float width;   // Width of the area in pixels
+    float height;  // Height of the area in pixels
+    bool triggered; // Flag to indicate if the trigger has already occurred
+};
+
+void update_game_state(float delta_time);

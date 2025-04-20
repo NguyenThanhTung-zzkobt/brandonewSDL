@@ -24,7 +24,7 @@ typedef struct Texture {
 class Map {
 public:
 
-    void init_map(SDL_Renderer* renderer);
+    void init_map(SDL_Renderer* renderer, const char* map_path);
     void processCollisionLayer(cute_tiled_layer_t* layer);
     int getWidth() const;
     int getHeight() const;
@@ -41,3 +41,8 @@ private:
 
 
 extern Map mapInstance;
+extern  Map mapInstace2;
+
+extern cute_tiled_map_t* map;
+extern cute_tiled_layer_t* layer;
+extern cute_tiled_tileset_t* tileset;

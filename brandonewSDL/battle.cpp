@@ -11,8 +11,8 @@ void start_battle(Monster1* enemy) {
         return;
     }
     current_battle_state = BATTLE_ACTIVE;
+    
     current_enemy = &enemy->entity;
-
 
    
     if (renderer) {
@@ -22,10 +22,18 @@ void start_battle(Monster1* enemy) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, ". for battle UI initialization!");
     }
 
-
+    
 
     // Optional: pause other systems (like map movement)
     SDL_Log("Battle started!");
+
+    if (strcmp(current_enemy->name, "phantom") == 0) {
+        play_music("assets/boss_battle.mp3");
+        return;
+    }
+    play_music("assets/battle.mp3");
+
+
 }
 
 void update_battle(float delta_time) {
@@ -55,10 +63,11 @@ void render_battle(SDL_Renderer* renderer) {
 
 
 
-void end_battle_lost() {
+void end_battle_lost(Entity* current_enemy) {
+    play_music("assets/map1.mp3");
     cleanup_battle_ui();
     current_battle_state = BATTLE_NONE;
-
+    current_enemy->cleanup();
     // Reset the triggered flag of the enemy if it exists
     if (current_enemy != nullptr) {
         SDL_Log("current_enemy ptr = %p", (void*)current_enemy);
@@ -75,12 +84,19 @@ void end_battle_lost() {
             }
         }
         current_enemy = nullptr;
+        SDL_Log("Player lost the battle!");
     }
-    SDL_Log("Player lost the battle!");
 }
-void end_battle_won() {
+void end_battle_won(Entity * current_enemy) {
+    play_music("assets/map1.mp3");
+    if (strcmp(current_enemy->name, "phantom") == 0) {
+        current_game_state = END_GAME_WON;
+        play_music("assets/end_game.mp3");
+        return;
+    }
 
-    PLAYER.addItem(1, itemMap);
+    current_enemy->cleanup();
+    random_obtaining_item();
     int temp = PLAYER.entity.MY_LEVEL;
     PLAYER.entity.MY_LEVEL++;
     if(temp < PLAYER.entity.MY_LEVEL) {
@@ -167,5 +183,53 @@ void execute_damage_from_player(Entity* target) {
     }
     else  {
         target->current_hp -= PLAYER.entity.attack_power;
+    }
+}
+
+void execute_cursed(Entity* attacker, Entity* target) {
+    if (!target) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error: execute_cursed received a null target pointer!");
+        return;
+    }
+
+    target = &PLAYER.entity;
+    if (target) {
+        if (target->active_status.type == StatusEffect::CURSED) {
+            // If already poisoned, reset the duration
+            target->active_status.duration = 3;
+            SDL_Log("Player re-infected with CURSED! Duration reset.");
+        }
+        else {
+            // If not already poisoned, apply the effect
+            target->active_status.type = StatusEffect::CURSED;
+            target->active_status.duration = 3;
+            SDL_Log("Player inflicted with CURSED!");
+        }
+    }
+    else {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error: execute_poison_infection target is not a Player!");
+    }
+
+}
+
+
+void random_obtaining_item() {
+    int random_choice = rand() % 100;
+
+    if (random_choice < 50) {
+        PLAYER.addItem(1, itemMap);
+        return;
+    }
+    else if (random_choice < 5) {
+        PLAYER.addItem(2, itemMap);
+        return;
+    }
+    else if (random_choice < 10) {
+        PLAYER.addItem(3, itemMap);
+        return;
+    }
+    else {
+        PLAYER.addItem(4, itemMap);
+        return;
     }
 }

@@ -7,3 +7,5 @@ extern SDL_FRect camera;
 
 void set_camera_position(SDL_FPoint target);
 
+
+

@@ -11,13 +11,16 @@
 struct StatusEffect {
     enum Type {
         NONE,
-        POISON
+        POISON,
+        CURSED,
+        BURNED
 
     };
 
     Type type = NONE;
     int duration = 0;
     int damagePerTurn = 0;
+    int cursed_count_down = 0;
 };
 
 class Entity { // Changed from struct to class
@@ -55,3 +58,5 @@ void create_entity(Entity entity);
 void destroy_entity(int index);
 void swap_entities(int index1, int index2);
 int find_entity(const char* name);
+
+extern bool is_in_first_map;

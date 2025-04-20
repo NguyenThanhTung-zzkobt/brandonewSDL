@@ -8,13 +8,7 @@
 #include <cstdlib>   // For rand() and srand()
 #include <ctime>     // For time() to seed the random number generator
 
-enum BattleAction {
-	///bomberplant
-	NORMAL_ATTACK,
-	SPIKE_ATTACK,
-	POISON_INFECTION,
 
-};
 
 
 class Monster1 {
@@ -38,9 +32,19 @@ public:
 	void reload_monster_texture(SDL_Renderer* renderer);
 };
 
+enum BattleAction {
+	///bomberplant
+	NORMAL_ATTACK,
+	SPIKE_ATTACK,
+	POISON_INFECTION,
+	//phantom
+	SOUL_STEAL,
+	CURSED
 
+};
 
-BattleAction choose_action();
+BattleAction choose_action(Entity* current_enemy);
+
 void init_monster1(SDL_Renderer* renderer);
 extern Monster1 Monster;
 extern Monster1 phantom1;

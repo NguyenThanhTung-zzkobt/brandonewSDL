@@ -3,9 +3,9 @@
 #include "map.h"
 
 // Global variables
-static cute_tiled_map_t* map;
-static cute_tiled_layer_t* layer;
-static cute_tiled_tileset_t* tileset;
+ cute_tiled_map_t* map;
+ cute_tiled_layer_t* layer;
+ cute_tiled_tileset_t* tileset;
 static Texture* texture;
 static Map* activeMapInstance = nullptr;
 
@@ -37,6 +37,7 @@ static void render(SDL_Renderer* renderer) {
 	}
 
 	cute_tiled_layer_t* temp_layer = layer;
+
 	while (temp_layer) {
 		if (!temp_layer->visible || !temp_layer->data) {
 			temp_layer = temp_layer->next;
@@ -47,7 +48,9 @@ static void render(SDL_Renderer* renderer) {
 		for (int i = 0; i < map->height; i++) {
 			for (int j = 0; j < map->width; j++) {
 				int tile_index = i * map->width + j;
+
 				int tile_id = temp_layer->data[tile_index];
+				//SDL_Log("Tile ID at index (%d, %d): %d", j, i, tile_id);
 				if (tile_id == 0) continue;
 
 				Texture* temp_texture = texture;
@@ -112,7 +115,7 @@ static void render(SDL_Renderer* renderer) {
 
 }
 
-void Map::init_map(SDL_Renderer* renderer) {
+void Map::init_map(SDL_Renderer* renderer,const char* map_path) {
 	while (true) {
 		int map_index = find_entity("map");
 		if (map_index == -1) break;
@@ -120,8 +123,12 @@ void Map::init_map(SDL_Renderer* renderer) {
 	}
 
 	activeMapInstance = this;
-	const char map_path[] = "tiled/map.json";
 	map = cute_tiled_load_map_from_file(map_path, NULL);
+	if (!map || !map->layers || !map->tilesets) {
+		SDL_Log("Failed to load map or its layers/tilesets!");
+		return;
+	}
+
 	if (!map) {
 		SDL_Log("Error loading the map from path: %s", map_path);
 		return;
@@ -141,6 +148,7 @@ void Map::init_map(SDL_Renderer* renderer) {
 		SDL_Log("- Layer name: %s, width: %d, height: %d, visible: %d, has data: %d",
 			l->name.ptr, l->width, l->height, l->visible, l->data != NULL);
 	}
+
 	while (current_layer) {
 		SDL_Log("Found layer: %s", current_layer->name.ptr);
 
@@ -160,6 +168,7 @@ void Map::init_map(SDL_Renderer* renderer) {
 	}
 
 	texture = (Texture*)SDL_malloc(sizeof(Texture));
+	SDL_memset(texture, 0, sizeof(Texture));
 	if (!texture) {
 		SDL_Log("Memory allocation failed for texture");
 		return;
@@ -169,6 +178,10 @@ void Map::init_map(SDL_Renderer* renderer) {
 	while (tileset) {
 		SDL_Log("Attempting to load texture: %s", tileset->image.ptr);
 		current_texture->texture = IMG_LoadTexture(renderer, tileset->image.ptr);
+		if (!current_texture->texture) {
+			SDL_Log("Error loading texture for tileset");
+			SDL_Log("SDL_image Error: %s", SDL_GetError());
+		}
 		if (!current_texture->texture) {
 			SDL_Log("Error loading texture for tileset");
 			SDL_Log("SDL_image Error: %s", SDL_GetError());
@@ -186,6 +199,7 @@ void Map::init_map(SDL_Renderer* renderer) {
 		tileset = tileset->next;
 		if (tileset) {
 			current_texture->next = (Texture*)SDL_malloc(sizeof(Texture));
+			SDL_memset(current_texture->next, 0, sizeof(Texture));
 			if (!current_texture->next) {
 				SDL_Log("Memory allocation failed for new texture");
 				break;
@@ -218,7 +232,7 @@ void Map::processCollisionLayer(cute_tiled_layer_t* layer) {
 		SDL_Log("ERROR: Invalid collision layer or data");
 		return;
 	}
-
+	collisionData.clear();
 	SDL_Log("Processing collision layer: %s", layer->name.ptr);
 	SDL_Log("Layer width: %d, height: %d", layer->width, layer->height);
 	if (!layer->data) {
@@ -281,17 +295,37 @@ int Map::getCurrentMapId() const {
 
 
 void Map::loadMap(int map_id, SDL_Renderer* renderer) {
-	//mapInstance.init_map(renderer);
-	 //switch (map_id) {
-	 //   case 0:
-	mapInstance.init_map(renderer);
-	//     break;
-   //  case 1:
-	//     mapInstance.init_map(renderer);
-	//     break;
-	// default:
-	 //    SDL_Log("Unknown map ID: %d\n", map_id);
-	//     break;
- //}
+	const char* map_path = nullptr;
+	cleanup_map();
+	collisionData.clear();
+	for (int i = 0; i < entities_count; ++i) {
+		if (i == find_entity("bomberplant") || i == find_entity("phantom")) {
+			destroy_entity(i);
+			i--; // Important: Adjust index after destroying
+		}
+	}
+	switch (map_id) {
+	case 0:
+		map_path = "tiled/map.json";
+		break;
+	case 1:
+		map_path = "tiled/castle1.json";
+		PLAYER.entity.set_position(222, 257);
+		break;
+
+	default:
+		SDL_Log("Unknown map ID: %d\n", map_id);
+		return;
+	}
+	mapInstance.init_map(renderer, map_path);
+	int map_new_index = find_entity("map");
+	swap_entities(0, map_new_index);
+	init_monster1(renderer);
+	for (int i = 0; i < entities_count; ++i) {
+		if (i == find_entity("bomberplant")) {
+			destroy_entity(i);
+			i--; // Important: Adjust index after destroying
+		}
+	}
 	mapInstance.currentMap = map_id;
 }

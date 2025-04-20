@@ -6,6 +6,7 @@
 #include "entity.h"
 #include "player.h"
 #include "map.h"
+#include "map2.h"
 #include "camera.h"
 #include "monster1.h"
 #include "battle.h"
@@ -129,6 +130,8 @@ void render() {
 	case STATE_PAUSE_MENU:
 		render_pause_menu_ui(renderer);
 		break;
+	case END_GAME_WON:
+		render_end_game( renderer);
 	default:
 		break;
 	}
@@ -159,9 +162,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
-	init_music();
 
-	mapInstance.init_map(renderer);
+
+	init_music();
+	//play_music("assets/OCTOPATH TRAVELER - opening menu - .mp3");
+	mapInstance.loadMap(0, renderer);
 	PLAYER.setMap(&mapInstance);
 	init_player(renderer);
 	init_monster1(renderer);
@@ -170,6 +175,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	init_pause_menu_ui(renderer);
 
 	SDL_SetRenderLogicalPresentation(renderer, 400 , 255, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
+	srand(static_cast<unsigned int>(time(nullptr)));
 
 	return SDL_APP_CONTINUE;
 }
@@ -267,7 +274,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 		///frame_count++;
 		///SDL_Log("--- Frame: %d ---", frame_count);
 		update();
-
+		update_game_state(delta_time);
 		render();
 		app_wait_for_next_frame();
 		return SDL_APP_CONTINUE;

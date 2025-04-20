@@ -36,7 +36,7 @@ SDL_Color g_color_selected = { 255, 255, 0, 255 };
 
 
 void init_menu_ui(SDL_Renderer* renderer) {
-    play_music("assets/OCTOPATH TRAVELER - opening menu-.mp3");
+    //play_music("assets/OCTOPATH TRAVELER - opening menu-.mp3");
     if (menu_ui.font != nullptr) return;
     menu_ui.menu_select = 0;
     menu_ui.selecting_options = { "NEW GAME" ,"CONTINUE" , "OPTIONS" , "CREDITS", "EXIT" };
@@ -144,7 +144,7 @@ void update_menu_ui(const SDL_Event* event){
                 PLAYER.inventory.clear();           
                 init_monster1(renderer);
                 mapInstance.loadMap(0, renderer); 
-
+                play_music("assets/map1.mp3");
                 switch_game_state(STATE_INIT_GAME, renderer);
                 reset_delta_time();
                 cleanup_menu_ui();
@@ -153,8 +153,15 @@ void update_menu_ui(const SDL_Event* event){
             else if (menu_ui.selecting_options[menu_ui.menu_select] == "CONTINUE") {
                 load_game(filename, renderer);
                 current_game_state = STATE_INGAME;
+                play_music("assets/map1.mp3");
                 reset_delta_time();
                 cleanup_menu_ui();
+                for (int i = 0; i < entities_count; ++i) {
+                    if (i == find_entity("phantom")) {
+                        destroy_entity(i);
+                        i--; // Important: Adjust index after destroying
+                    }
+                }
 
 
             }
@@ -379,6 +386,9 @@ void render_credits_ui(SDL_Renderer* renderer) {
         SDL_Log("No font loaded. Cannot render credits.");
         return;
     }
+    if (credits_font) {
+        TTF_SetFontStyle(credits_font, TTF_STYLE_BOLD);
+    }
     // Store the original text color
     SDL_Color original_text_color = menu_ui.text_color;
 
@@ -397,18 +407,18 @@ void render_credits_ui(SDL_Renderer* renderer) {
         "Press ESC to return"
     };
 
-    int x = 50;
+    int x = 10;
     int y = 20;
     for (const auto& line : credits_text) {
 
         if (line == "CREDITS") {
-            menu_ui.text_color = { 0, 0, 0, 255 };
+            menu_ui.text_color = { 255, 255, 255, 255 };
         }
         else if (line.find("Programming") != std::string::npos) {
-            menu_ui.text_color = { 0, 0, 0, 255 };
+            menu_ui.text_color = { 255, 255, 255, 255 };
         }
         else {
-            menu_ui.text_color = { 0, 0, 0, 255 }; // You had the same color here.  If different, change it.
+            menu_ui.text_color = { 255, 255, 255, 255 }; // You had the same color here.  If different, change it.
         }
 
         SDL_Surface* surface = TTF_RenderText_Solid(credits_font, line.c_str(), 0,menu_ui.text_color);
@@ -444,22 +454,19 @@ int get_current_game_state_id() {
 
 
 void switch_game_state(GameState new_state, SDL_Renderer* renderer) {
-    // For now, just set the global state.  In a more complex game, you would
-    //  deallocate the old state and allocate the new state.  You might also
-    //  need to initialize the new state (e.g., load a level).
+
     current_game_state = new_state;
     SDL_Log("Switched to game state %d\n", new_state);
-    // Here you would also call any necessary initialization for the new game state.
-    // For example, if new_state is the ID of a level, you would load the level here.
+
     switch (new_state) {
     case STATE_MAIN_MENU:
         
         break;
     case STATE_INIT_GAME:
-        // Initialize second state
+        
         break;
     case STATE_INGAME:
-        // Initialize third state
+        
         break;
     default:
         SDL_Log("Unknown game state: %d\n", new_state);
@@ -688,4 +695,65 @@ void InventoryEntity::renderSubScreen(SDL_Renderer* renderer) {
             SDL_Log("Item ID %d not found in item map!", itemID);
         }
     }
+}
+
+
+void render_end_game(SDL_Renderer* renderer) {
+    // Load background
+    SDL_Texture* bg = IMG_LoadTexture(renderer, "assets/menu.png");
+    if (!bg) {
+        SDL_Log("Failed to load end screen background: %s", SDL_GetError());
+        return;
+    }
+
+    TTF_Font* credits_font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 12);
+    if (!credits_font) {
+        SDL_Log("No font loaded. Cannot render credits.");
+        return;
+    }
+    // Store the original text color
+    SDL_Color original_text_color = menu_ui.text_color;
+
+    std::vector<std::string> credits_text = {
+        "ONLY ENDING???",
+        "",
+        "IT SEEMS LIKE THERE IS NO PRINCESS HERE ",
+        "HE(?) THOUGHT EVERYBODY SAID THIS IS",
+        "",
+        "THE PLACE",
+        "BUT EVERYTHING REMAINS A MYSTERY",
+        "",
+        "",
+        "",
+        "",
+        "Press ALT+F4 to ehe"
+    };
+
+    int x = 50;
+    int y = 20;
+    for (const auto& line : credits_text) {
+
+        if (line == "CREDITS") {
+            menu_ui.text_color = { 0, 0, 0, 255 };
+        }
+        else if (line.find("Programming") != std::string::npos) {
+            menu_ui.text_color = { 0, 0, 0, 255 };
+        }
+        else {
+            menu_ui.text_color = { 0, 0, 0, 255 }; // You had the same color here.  If different, change it.
+        }
+
+        SDL_Surface* surface = TTF_RenderText_Solid(credits_font, line.c_str(), 0, menu_ui.text_color);
+        if (!surface) continue;
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (!texture) { SDL_DestroySurface(surface); continue; }
+        SDL_FRect dest = { (float)x, (float)y, (float)surface->w, (float)surface->h };
+        SDL_RenderTexture(renderer, texture, NULL, &dest);
+        y += 30; // Move down for the next line
+        SDL_DestroyTexture(texture);
+        SDL_DestroySurface(surface);
+    }
+    // Restore the original text color
+    menu_ui.text_color = original_text_color;
+    TTF_CloseFont(credits_font);
 }

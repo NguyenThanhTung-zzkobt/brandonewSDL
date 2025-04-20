@@ -5,6 +5,7 @@ bool is_player_turn = true;
 Turn current_turn = PLAYER_TURN;
 int turn_count = 1;
 bool poison_applied_this_turn =  false;
+bool cursed_applied_this_turn = false; 
 
 
 static BattleUI battle_ui;
@@ -247,7 +248,28 @@ void update_battle_ui(const SDL_Event* event) {
                 SDL_Log("Poison effect on player has ended.");
             }
         }
-
+        if (PLAYER.entity.active_status.type == StatusEffect::CURSED && PLAYER.entity.active_status.duration > 0 && !cursed_applied_this_turn) {
+            cursed_applied_this_turn = true;
+            PLAYER.entity.active_status.cursed_count_down++;
+            PLAYER.entity.active_status.duration--;
+            switch (PLAYER.entity.active_status.cursed_count_down) { 
+            case 1:
+                SDL_Log("YOU FEEL A CHILL DOWN THE SPINE...");
+                break;
+            case 2:
+                SDL_Log("A BURNING FIRE IS STARTED WITHIN YOUR LUNGS...");
+                break;
+            case 3:
+                PLAYER.entity.current_hp = 1;
+                SDL_Log("YOU ARE BARELY ALIVE!!!");
+                break;
+            }
+            if (PLAYER.entity.active_status.duration == 0) {
+                PLAYER.entity.active_status.cursed_count_down = 0;
+                PLAYER.entity.active_status.type = StatusEffect::NONE;
+                SDL_Log("CURSED effect on player has ended.");
+            }
+        }
 
 
         if (event->type == SDL_EVENT_KEY_DOWN) {
@@ -284,7 +306,7 @@ void update_battle_ui(const SDL_Event* event) {
                         execute_damage_from_player(current_enemy);
 
                         if (current_enemy && current_enemy->current_hp <= 0) {
-                            end_battle_won();
+                            end_battle_won(current_enemy);
                             return; // Early exit to avoid using deleted enemy
                         }
 
@@ -303,8 +325,8 @@ void update_battle_ui(const SDL_Event* event) {
                         break;
                     }
                     if (battle_ui.options[battle_ui.selected_option] == "Flee" ) {
-                        end_battle_lost();
-                        PLAYER.entity.set_position(18, 107);
+                        end_battle_lost(current_enemy);
+                        ///LAYER.entity.set_position(18, 107);
                         break;
                     }
 
@@ -322,7 +344,8 @@ void update_battle_ui(const SDL_Event* event) {
 
     
     if (current_turn == MONSTER_TURN && current_enemy != nullptr) {
-        BattleAction monster_action = choose_action();
+        BattleAction monster_action = choose_action(current_enemy);
+        SDL_Log("Chosen action: %d", monster_action);
         switch (monster_action) {
         case NORMAL_ATTACK:
             if (current_enemy != nullptr) { // Add null check here
@@ -352,15 +375,35 @@ void update_battle_ui(const SDL_Event* event) {
                 SDL_Log("Error: Cannot use poison, current_enemy is null!");
             }
             break;
+        case SOUL_STEAL:
+            if (current_enemy != nullptr) { // Add null check here
+                PLAYER.entity.current_hp -= current_enemy->attack_power;
+                current_enemy->current_hp += current_enemy->attack_power;
+                SDL_Log("Monster used SOUL_STEAL!");
+            }
+            else {
+                SDL_Log("Error: Cannot attack player, current_enemy is null!");
+            }
+            break;
+        case CURSED:
+            if (current_enemy != nullptr) { // Add null check here
+                execute_cursed(current_enemy, &(PLAYER.entity));
+                SDL_Log("Monster used CURSED!");
+            }
+            else {
+                SDL_Log("Error: Cannot use poison, current_enemy is null!");
+            }
+            break;
         default:
             break;
         }
         current_turn = PLAYER_TURN;
         poison_applied_this_turn = false;
+        cursed_applied_this_turn = false;
         turn_count++;
     }
     if (PLAYER.entity.current_hp <= 0) {
-        end_battle_lost();
+        end_battle_lost(current_enemy);
         return;
     }
 }

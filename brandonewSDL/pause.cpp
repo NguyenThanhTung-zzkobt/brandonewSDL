@@ -163,7 +163,7 @@ void update_pause_menu_ui(SDL_Event* event) {
                 PLAYER.position.y = 100;
                 PLAYER.current_hp = PLAYER.max_hp;
                 PLAYER.inventory.clear();
-
+                play_music("assets/OCTOPATH TRAVELER - opening menu-.mp3");
                 // Destroy specific monster entities
                 for (int i = 0; i < entities_count; ++i) {
                     if (i == find_entity("bomberplant") || i == find_entity("phantom")) {

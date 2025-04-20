@@ -6,6 +6,14 @@ static SDL_FRect sprite_portion = { 17, 14 , 15 ,18 };
 static SpriteSize sprite_size{ 15, 15 };
 
 
+float trigger_x_min = 384.0f;
+float trigger_x_max = 402.0f;
+float trigger_y_min = 120.0f;
+float trigger_y_max = 145.0f;
+
+bool map_transition_triggered = false;
+
+
 Player::Player() {
 	position.x = 18;
 	position.y = 107;
@@ -20,7 +28,7 @@ Player::Player() {
 	attack_power = 15 + MY_LEVEL;
 	
 	texture = nullptr;
-	weapons = { "Sword", "Axe", "Bow", "Dagger"};
+	weapons = { "Sword", "Axe", "Bow"};
 	selected_weapon = "Sword";
 	inventory = {1};
 
@@ -94,11 +102,12 @@ void Player::update(float delta_time) {
 		float new_y = PLAYER.position.y - movement_speed * delta_time;
 		// Check collision on both axes (horizontal and vertical)
 		if (!PLAYER.checkCollision(PLAYER.position.x, new_y)) {
-			SDL_Log("Player Update: >>> Trying to set animation: walk_up");
+			//SDL_Log("Player Update: >>> Trying to set animation: walk_up");
 			PLAYER.position.y = new_y;
 			//sprite_portion = { 17, 14 , 15 ,18 };
 			PLAYER.animator.setAnimation("walk_up"); // <<--- THÊM DÒNG NÀY
 			moved = true; // <<--- Đánh dấu đã di chuyển
+			SDL_Log("Player Position: x=%.2f, y=%.2f", PLAYER.position.x, PLAYER.position.y);
 		}
 	}
 	if (keyboard_state[SDL_SCANCODE_S]) {
@@ -109,6 +118,7 @@ void Player::update(float delta_time) {
 			//sprite_portion = { 17, 14 , 15 ,18 };
 			PLAYER.animator.setAnimation("walk_down"); // <<--- THÊM DÒNG NÀY
 			moved = true; // <<--- Đánh dấu đã di chuyển
+			SDL_Log("Player Position: x=%.2f, y=%.2f", PLAYER.position.x, PLAYER.position.y);
 		}
 	}
 
@@ -121,6 +131,7 @@ void Player::update(float delta_time) {
 			//sprite_portion = { 17, 14 , 15 ,18 };
 			PLAYER.animator.setAnimation("walk_left"); // <<--- THÊM DÒNG NÀY
 			moved = true; // <<--- Đánh dấu đã di chuyển
+			SDL_Log("Player Position: x=%.2f, y=%.2f", PLAYER.position.x, PLAYER.position.y);
 		}
 	}
 	if (keyboard_state[SDL_SCANCODE_D]) {
@@ -131,6 +142,8 @@ void Player::update(float delta_time) {
 			//sprite_portion = { 17, 14 , 15 ,18 };
 			PLAYER.animator.setAnimation("walk_right"); // <<--- THÊM DÒNG NÀY
 			moved = true; // <<--- Đánh dấu đã di chuyển
+			//SDL_Log("Address of PLAYER in movement code: %p", (void*)&PLAYER);
+			SDL_Log("Player Position: x=%.2f, y=%.2f", PLAYER.position.x, PLAYER.position.y);
 		}
 	}
 	if (!moved) {
@@ -270,8 +283,8 @@ void reload_player_texture(SDL_Renderer* renderer) {
 
 
 void Player::set_position(int x, int y) {
-	this->position.x = static_cast<float>(x);
-	this->position.y = static_cast<float>(y);
+	PLAYER.position.x = static_cast<float>(x);
+	PLAYER.position.y = static_cast<float>(y);
 }
 
 
@@ -387,4 +400,23 @@ int Player::getItemID(const std::string & itemName, const std::map<int, Item>&it
 		}
 	}
 	return -1; // Return -1 to indicate not found
+}
+
+
+void update_game_state(float delta_time) {
+	//SDL_Log("Address of PLAYER in update_game_state: %p", (void*)&PLAYER);
+	float px = PLAYER.position.x;
+	float py = PLAYER.position.y;
+
+	if (!map_transition_triggered &&
+		px >= trigger_x_min && px <= trigger_x_max &&
+		py >= trigger_y_min && py <= trigger_y_max) {
+
+		map_transition_triggered = true;
+		mapInstance.loadMap(1, renderer);
+
+	}
+
+
+
 }

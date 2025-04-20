@@ -24,7 +24,8 @@ enum GameState {
 	STATE_OPTIONS_MENU,
 	STATE_CREDITS,
 	STATE_PAUSE_MENU,
-	STATE_QUIT
+	STATE_QUIT,
+	END_GAME_WON
 };
 
 enum OptionsOrigin {
@@ -105,4 +106,6 @@ public:
 	void renderSubScreen(SDL_Renderer* renderer);
 
 };
+
+void render_end_game(SDL_Renderer* renderer);
 extern InventoryEntity inventoryEntity;

@@ -1,0 +1,44 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "castle1.json",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "castle1.json": {
+            "scale": 2.4601041666666665,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 239.8272430876064,
+                "y": 159.95257653385275
+            }
+        },
+        "castle1.json#broken_tile_fallingdown_anim_strip_9": {
+            "scaleInDock": 3
+        },
+        "castle1.json#iron_gate_opening_anim_strip_8": {
+            "scaleInDock": 1
+        }
+    },
+    "last.imagePath": "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart",
+    "map.lastUsedFormat": "json",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "openFiles": [
+        "castle1.json"
+    ],
+    "project": "zz.tiled-project",
+    "recentFiles": [
+        "castle1.json"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

@@ -60,6 +60,9 @@
     <ClCompile Include="animated.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="map2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\Char_Sprites\char_spritesheet.png">
@@ -75,6 +78,18 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\menu1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pixelart\inside castle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pixelart\inside2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pixelart\princess_calling_for_help.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pixelart\Adobe Express - file (1).png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -127,16 +142,25 @@
     <ClInclude Include="animated.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="map2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="tiled\map.json" />
     <None Include="tiled\untitled.tiled-project" />
     <None Include="tiled\untitled.tiled-session" />
+    <None Include="tiled\untitled2.tiled-project" />
+    <None Include="tiled\untitled2.tiled-session" />
+    <None Include="tiled\castle.json" />
+    <None Include="tiled\castle1.json" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\OCTOPATH TRAVELER - opening menu-.mp3" />
     <Media Include="assets\battle.mp3" />
     <Media Include="assets\map1.mp3" />
+    <Media Include="assets\boss_battle.mp3" />
+    <Media Include="assets\end_game.mp3" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="external\Open_Sans\static\OpenSans-Regular.ttf" />

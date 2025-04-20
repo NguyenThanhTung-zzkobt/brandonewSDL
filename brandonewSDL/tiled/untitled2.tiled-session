@@ -1,0 +1,29 @@
+{
+    "activeFile": "",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "map.json": {
+            "scale": 2.4601041666666665,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 239.8272430876064,
+                "y": 159.95257653385275
+            }
+        },
+        "map.json#Overworld_Tileset": {
+            "scaleInDock": 1
+        },
+        "map.json#water_tile_anim_strip_8": {
+            "scaleInDock": 1
+        }
+    },
+    "openFiles": [
+    ],
+    "project": "untitled2.tiled-project",
+    "recentFiles": [
+        "map.json"
+    ]
+}

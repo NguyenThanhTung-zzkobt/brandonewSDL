@@ -3,12 +3,83 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "map.json",
+    "activeFile": "castle.json",
     "expandedProjectPaths": [
-        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "#Adobe Express - file (1)": {
+            "dynamicWrapping": false,
+            "scaleInEditor": 1
+        },
+        "#bên trong lâu đài": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/ben_trong_lau_dai_map4.tmx": {
+            "scale": 0.49815625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 800.9535160905839,
+                "y": 799.9498149426007
+            }
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/ben_trong_lau_dai_map4.tmx#bên trong lâu đài": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/ben_trong_lau_dai_map4.tmx#bên trong lâu đài2": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/ben_trong_lau_dai_map4.tmx#bên trong lâu đài3": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/ben_trong_lau_dai_map4.tmx#thang2": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/ben_trong_lau_dai_map4.tmx#thang3 (1)": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/ben_trong_lau_dai_map4.tmx#đá": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json": {
+            "scale": 0.33,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1206.060606060606,
+                "y": 1040.9090909090908
+            }
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json#bên trong lâu đài": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json#bên trong lâu đài2": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json#bên trong lâu đài3": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json#cửa": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json#lâu đài_4": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json#rồng sleeping": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json#torch": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json#đánh rồng background": {
+            "scaleInDock": 1
+        },
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json#đánh rồng background2": {
+            "scaleInDock": 1
+        },
         "C:/Users/Admin/Downloads/hang_dong_map2.tmx": {
             "scale": 0.41463541666666665,
             "selectedLayer": 0,
@@ -29,6 +100,26 @@
         "C:/Users/Admin/Downloads/hang_dong_map2.tmx#nền đất": {
             "scaleInDock": 1
         },
+        "castle.json": {
+            "scale": 2,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 237.5,
+                "y": 152.25
+            }
+        },
+        "castle.json#dragon": {
+            "scaleInDock": 1
+        },
+        "castle.json#inside2": {
+            "scaleInDock": 3
+        },
+        "castle.json#inside_castle": {
+            "scaleInDock": 1
+        },
+        "castle.json#princess_calling_for_help": {
+            "scaleInDock": 3
+        },
         "map.json": {
             "scale": 2,
             "selectedLayer": 3,
@@ -44,19 +135,24 @@
             "scaleInDock": 1
         }
     },
-    "last.imagePath": "C:/Dev/brandonewSDL/brandonewSDL/assets/Tiles_(animated)/Overworld",
+    "last.externalTilesetPath": "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart",
+    "last.imagePath": "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart",
     "map.lastUsedFormat": "json",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "openFiles": [
-        "map.json"
+        "castle.json"
     ],
     "project": "untitled.tiled-project",
     "recentFiles": [
+        "castle.json",
         "map.json",
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/danh_rong_giai_cuu_cong_chua_map5.json",
+        "C:/Dev/brandonewSDL/brandonewSDL/assets/pixelart/ben_trong_lau_dai_map4.tmx",
         "C:/Users/Admin/Downloads/hang_dong_map2.tmx"
     ],
     "tileset.embedInMap": true,
+    "tileset.lastUsedFilter": "All Files (*)",
     "tileset.tileSize": {
         "height": 16,
         "width": 16
