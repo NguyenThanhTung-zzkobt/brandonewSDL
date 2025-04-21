@@ -25,6 +25,8 @@ struct SaveData {
     int current_map_id;
     float camera_x;
     float camera_y;
+
+    int player_level;
 };
 extern std::string filename;
 

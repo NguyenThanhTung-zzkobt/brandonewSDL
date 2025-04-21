@@ -161,7 +161,7 @@ void update_pause_menu_ui(SDL_Event* event) {
                 // Reset player data
                 PLAYER.position.x = 100;  // Or your initial position
                 PLAYER.position.y = 100;
-                PLAYER.current_hp = PLAYER.max_hp;
+                
                 PLAYER.inventory.clear();
                 play_music("assets/OCTOPATH TRAVELER - opening menu-.mp3");
                 // Destroy specific monster entities

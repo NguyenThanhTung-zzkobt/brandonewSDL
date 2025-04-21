@@ -11,11 +11,11 @@
             "scaleInDock": 1
         },
         "castle1.json": {
-            "scale": 2.4601041666666665,
-            "selectedLayer": 2,
+            "scale": 1.5,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 239.8272430876064,
-                "y": 159.95257653385275
+                "x": 181.3333333333333,
+                "y": 155.66666666666663
             }
         },
         "castle1.json#broken_tile_fallingdown_anim_strip_9": {

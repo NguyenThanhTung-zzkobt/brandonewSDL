@@ -190,7 +190,7 @@ void update_menu_ui(const SDL_Event* event){
                 map_transition_triggered = false;
                 PLAYER.position.x = 100;  
                 PLAYER.position.y = 100;
-                PLAYER.current_hp = PLAYER.max_hp; 
+                PLAYER.entity.current_hp = PLAYER.max_hp; 
                 PLAYER.inventory.clear();           
                 init_monster1(renderer);
                 mapInstance.loadMap(0, renderer); 
