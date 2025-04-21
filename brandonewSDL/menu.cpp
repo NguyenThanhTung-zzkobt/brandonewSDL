@@ -30,13 +30,15 @@ SDL_Rect fullscreen_checkbox_rect;
 
 TTF_Font* g_menu_font = nullptr;
 
+
+
 SDL_Color g_color_normal = { 200, 200, 200, 255 }; 
 SDL_Color g_color_selected = { 255, 255, 0, 255 };   
 
 
 
 void init_menu_ui(SDL_Renderer* renderer) {
-    //play_music("assets/OCTOPATH TRAVELER - opening menu-.mp3");
+    
     if (menu_ui.font != nullptr) return;
     menu_ui.menu_select = 0;
     menu_ui.selecting_options = { "NEW GAME" ,"CONTINUE" , "OPTIONS" , "CREDITS", "EXIT" };
@@ -84,9 +86,57 @@ void render_menu_ui(SDL_Renderer* renderer) {
         SDL_RenderTexture(renderer, background_texture, NULL, NULL);
         
     }
+    if (background_texture) {
+        SDL_FRect dest;
+        SDL_GetCurrentRenderOutputSize(renderer, (int*)&dest.w, (int*)&dest.h);
+        dest.x = 0;
+        dest.y = 0;
+        SDL_RenderTexture(renderer, background_texture, NULL, NULL);
+    }
+    TTF_Font* name_font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 20);
+    if (!name_font) {
+        SDL_Log("No font loaded. Cannot render credits.");
+        return;
+    }
+    if (name_font) {
+        TTF_SetFontStyle(name_font, TTF_STYLE_BOLD);
+    }
+    // Store the original text color
+    SDL_Color original_text_color = menu_ui.text_color;
+
+    std::vector<std::string> name_text = {
+        "KNIGHT TO THE RESCUE",
+
+    };
+
+    int name_x = 70;
+    int name_y = 40;
+    for (const auto& line : name_text) {
+
+
+        menu_ui.text_color = { 255, 255, 255, 255 }; 
+
+        SDL_Surface* surface = TTF_RenderText_Solid(name_font, line.c_str(), 0, menu_ui.text_color);
+        if (!surface) continue;
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (!texture) { SDL_DestroySurface(surface); continue; }
+        SDL_FRect dest = { (float)name_x, (float)name_y, (float)surface->w, (float)surface->h };
+        SDL_RenderTexture(renderer, texture, NULL, &dest);
+        name_y += 30; 
+        SDL_DestroyTexture(texture);
+        SDL_DestroySurface(surface);
+    }
+    
+    menu_ui.text_color = original_text_color;
+    TTF_CloseFont(name_font); 
+
+
+ 
+
+
 
     int x = 150;
-    int y = 60;
+    int y = 100;
     for (int i = 0; i < menu_ui.selecting_options.size(); ++i) {
         const std::string& option = menu_ui.selecting_options[i];
 
@@ -106,7 +156,7 @@ void render_menu_ui(SDL_Renderer* renderer) {
         SDL_FRect dest = { (float)x, (float)(y + i * 30), (float)surface->w, (float)surface->h };
 
         if (i == menu_ui.menu_select) {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 150); // yellow highlight
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 150); 
             SDL_FRect highlight = { dest.x - 5, dest.y - 2, dest.w + 10, dest.h + 4 };
             SDL_RenderFillRect(renderer, &highlight);
         }
@@ -137,7 +187,7 @@ void update_menu_ui(const SDL_Event* event){
             SDL_Log("You selected: %s", menu_ui.selecting_options[menu_ui.menu_select].c_str());
             if (menu_ui.selecting_options[menu_ui.menu_select] == "NEW GAME") {
                 is_starting_new_game = true;
-
+                map_transition_triggered = false;
                 PLAYER.position.x = 100;  
                 PLAYER.position.y = 100;
                 PLAYER.current_hp = PLAYER.max_hp; 
@@ -148,18 +198,38 @@ void update_menu_ui(const SDL_Event* event){
                 switch_game_state(STATE_INIT_GAME, renderer);
                 reset_delta_time();
                 cleanup_menu_ui();
+                for (int i = 0; i < entities_count; ++i) {
+                    if ( i == find_entity("phantom")) {
+                        destroy_entity(i);
+                        
+                        i--; 
+                    }
+                }
 
             }
             else if (menu_ui.selecting_options[menu_ui.menu_select] == "CONTINUE") {
+                map_transition_triggered = false;
                 load_game(filename, renderer);
                 current_game_state = STATE_INGAME;
                 play_music("assets/map1.mp3");
                 reset_delta_time();
                 cleanup_menu_ui();
-                for (int i = 0; i < entities_count; ++i) {
-                    if (i == find_entity("phantom")) {
-                        destroy_entity(i);
-                        i--; // Important: Adjust index after destroying
+                if (current_map_id != 1) {
+                    for (int i = 0; i < entities_count; ++i) {
+                        if (i == find_entity("phantom") || i == find_entity("bomberplant")){
+                            
+                            destroy_entity(i);
+                            Monster.cleanup();
+                            i--; 
+                        }
+                    }
+                }
+                else if (current_map_id != 0) {
+                    for (int i = 0; i < entities_count; ++i) {
+                        if (i == find_entity("bomberplant")) {
+                            destroy_entity(i);
+                            i--; 
+                        }
                     }
                 }
 
@@ -280,27 +350,27 @@ void render_options_ui(SDL_Renderer* renderer) {
         }
     }
 
-    // ✅ VOLUME BAR - Always render if option selected
+   
     if (options_select == 1) {
         int bar_x = x + volume_bar_x_offset;
         int bar_y = y + (options_select * 30) + volume_bar_y_offset;
         SDL_FRect volume_bar_rect = { (float)bar_x, (float)bar_y, (float)volume_bar_width, (float)volume_bar_height };
 
-        // Bar background
+       
         SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
         SDL_RenderFillRect(renderer, &volume_bar_rect);
 
-        // Volume fill
+        
         int fill_width = (int)((float)volume_level / 100.0f * volume_bar_width);
         SDL_FRect fill_rect = { (float)bar_x, (float)bar_y, (float)fill_width, (float)volume_bar_height };
         SDL_SetRenderDrawColor(renderer, 100, 200, 100, 255);
         SDL_RenderFillRect(renderer, &fill_rect);
 
-        // Border
+        
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
         SDL_RenderRect(renderer, &volume_bar_rect);
 
-        // Highlight if volume menu is active
+        
         if (in_volume_sub_menu) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
             SDL_RenderRect(renderer, &volume_bar_rect);
@@ -316,12 +386,12 @@ void update_options_ui(SDL_Renderer* renderer, SDL_Window* window,const SDL_Even
         switch (event->key.key) {
         case SDLK_UP:
             options_select = (options_select - 1 + selecting_options_option.size()) % selecting_options_option.size();
-            in_options_sub_menu = false; // Reset sub-menu when navigating options
+            in_options_sub_menu = false; 
             options_sub_select = 0;
             break;
         case SDLK_DOWN:
             options_select = (options_select + 1) % selecting_options_option.size();
-            in_options_sub_menu = false; // Reset sub-menu when navigating options
+            in_options_sub_menu = false; 
             options_sub_select = 0;
             break;
         case SDLK_RIGHT:
@@ -418,7 +488,7 @@ void render_credits_ui(SDL_Renderer* renderer) {
             menu_ui.text_color = { 255, 255, 255, 255 };
         }
         else {
-            menu_ui.text_color = { 255, 255, 255, 255 }; // You had the same color here.  If different, change it.
+            menu_ui.text_color = { 255, 255, 255, 255 }; 
         }
 
         SDL_Surface* surface = TTF_RenderText_Solid(credits_font, line.c_str(), 0,menu_ui.text_color);
@@ -427,13 +497,13 @@ void render_credits_ui(SDL_Renderer* renderer) {
         if (!texture) { SDL_DestroySurface(surface); continue; }
         SDL_FRect dest = { (float)x, (float)y, (float)surface->w, (float)surface->h };
         SDL_RenderTexture(renderer, texture, NULL, &dest);
-        y += 30; // Move down for the next line
+        y += 30; 
         SDL_DestroyTexture(texture);
         SDL_DestroySurface(surface);
     }
-    // Restore the original text color
+
     menu_ui.text_color = original_text_color;
-    TTF_CloseFont(credits_font); // важно закрывать шрифт
+    TTF_CloseFont(credits_font); 
 }
 
 void update_credits_ui(const SDL_Event* event) {
@@ -442,7 +512,7 @@ void update_credits_ui(const SDL_Event* event) {
     }
     if (event->type == SDL_EVENT_KEY_DOWN) {
         if (event->key.key == SDLK_ESCAPE) {
-            current_game_state = STATE_MAIN_MENU; // Go back to the main menu
+            current_game_state = STATE_MAIN_MENU;
         }
     }
 }
@@ -476,12 +546,12 @@ void switch_game_state(GameState new_state, SDL_Renderer* renderer) {
 
 
 InventoryEntity::InventoryEntity() : texture(nullptr), font(nullptr), selectedItemIndex(-1) {
-    frect = { 0, 0, 0, 0 }; // Initialize to zero
+    frect = { 0, 0, 0, 0 }; 
 }
 
 // Destructor
 InventoryEntity::~InventoryEntity() {
-    cleanup(); // Call cleanup to free resources
+    cleanup(); 
 }
 
 // Initialization
@@ -490,24 +560,24 @@ void InventoryEntity::init(SDL_Renderer* renderer, std::map<int, Item>& itemMap)
     initializeItems(itemMap);
     PLAYER.item_data = itemMap;
     
-    // Set the rectangle for the inventory display
-    frect.x = 50;  // Example position
-    frect.y = 50;  // Example position
-    frect.w = 300; // Example width
-    frect.h = 200; // Example height
+    
+    frect.x = 50;  
+    frect.y = 50; 
+    frect.w = 300; 
+    frect.h = 200; 
 
-    // Initialize font (if you want to display text)
-    font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 10); // Replace with your font file
+    
+    font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 10);
     if (!font) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_OpenFont: %s\n", SDL_GetError());
-        // Handle error, perhaps set font to NULL and continue without text rendering
+     
     }
     selectedItemIndex = 0;
 }
 
 // Rendering
 void InventoryEntity::render(SDL_Renderer* renderer) {
-    // Render the inventory background
+   
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderFillRect(renderer, &frect);
 
@@ -529,8 +599,8 @@ void InventoryEntity::render(SDL_Renderer* renderer) {
         for (size_t i = 0; i < PLAYER.inventory.size(); ++i) {
             int itemID = PLAYER.inventory[i];
             std::string itemName = "Invalid Item";
-            if (PLAYER.item_data.find(itemID) != PLAYER.item_data.end()) { // Use PLAYER.item_data
-                itemName = "[" + std::to_string(i) + "] " + PLAYER.item_data[itemID].name; // Access item from PLAYER
+            if (PLAYER.item_data.find(itemID) != PLAYER.item_data.end()) { 
+                itemName = "[" + std::to_string(i) + "] " + PLAYER.item_data[itemID].name; 
             }
             std::string itemText = itemName;
             SDL_Surface* textSurface = TTF_RenderText_Solid(font, itemText.c_str(), 0, textColor);
@@ -621,22 +691,22 @@ void InventoryEntity::handle_events(SDL_Event* event) {
 }
 
 void InventoryEntity::renderSubScreen(SDL_Renderer* renderer) {
-    // Define the position and size of the sub-screen, relative to the main inventory
+   
     SDL_FRect subScreenRect;
-    subScreenRect.x = frect.x + frect.w / 2 - 40; // Center relative to inventory
-    subScreenRect.y = frect.y + frect.h / 2 - 75; // center relative to inventory
+    subScreenRect.x = frect.x + frect.w / 2 - 40; 
+    subScreenRect.y = frect.y + frect.h / 2 - 75; 
     subScreenRect.w = 200;
     subScreenRect.h = 150;
 
     SDL_SetRenderDrawColor(renderer, 50, 50, 50, 200);
     SDL_RenderFillRect(renderer, &subScreenRect);
 
-    // Show description based on current selection
+    
     if (font && selectedItemIndex >= 0 && selectedItemIndex < PLAYER.inventory.size()) {
         int itemID = PLAYER.inventory[selectedItemIndex];
 
-        // Make sure itemMap contains the item
-        auto it = PLAYER.item_data.find(itemID);  // Access PLAYER's item_data
+        
+        auto it = PLAYER.item_data.find(itemID);  
         if (it != PLAYER.item_data.end()) {
             const Item& item = it->second;
 
@@ -699,19 +769,20 @@ void InventoryEntity::renderSubScreen(SDL_Renderer* renderer) {
 
 
 void render_end_game(SDL_Renderer* renderer) {
-    // Load background
+   
     SDL_Texture* bg = IMG_LoadTexture(renderer, "assets/menu.png");
     if (!bg) {
         SDL_Log("Failed to load end screen background: %s", SDL_GetError());
         return;
     }
-
+    SDL_RenderTexture(renderer, bg, NULL, NULL);
+    SDL_DestroyTexture(bg);
     TTF_Font* credits_font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 12);
     if (!credits_font) {
         SDL_Log("No font loaded. Cannot render credits.");
         return;
     }
-    // Store the original text color
+
     SDL_Color original_text_color = menu_ui.text_color;
 
     std::vector<std::string> credits_text = {
@@ -733,15 +804,9 @@ void render_end_game(SDL_Renderer* renderer) {
     int y = 20;
     for (const auto& line : credits_text) {
 
-        if (line == "CREDITS") {
-            menu_ui.text_color = { 0, 0, 0, 255 };
-        }
-        else if (line.find("Programming") != std::string::npos) {
-            menu_ui.text_color = { 0, 0, 0, 255 };
-        }
-        else {
-            menu_ui.text_color = { 0, 0, 0, 255 }; // You had the same color here.  If different, change it.
-        }
+
+        menu_ui.text_color = { 0, 0, 0, 255 }; 
+
 
         SDL_Surface* surface = TTF_RenderText_Solid(credits_font, line.c_str(), 0, menu_ui.text_color);
         if (!surface) continue;
@@ -749,11 +814,66 @@ void render_end_game(SDL_Renderer* renderer) {
         if (!texture) { SDL_DestroySurface(surface); continue; }
         SDL_FRect dest = { (float)x, (float)y, (float)surface->w, (float)surface->h };
         SDL_RenderTexture(renderer, texture, NULL, &dest);
-        y += 30; // Move down for the next line
+        y += 30; 
         SDL_DestroyTexture(texture);
         SDL_DestroySurface(surface);
     }
-    // Restore the original text color
+    
+    menu_ui.text_color = original_text_color;
+    TTF_CloseFont(credits_font);
+}
+
+void render_end_game_lost(SDL_Renderer* renderer) {
+    SDL_Texture* bg = IMG_LoadTexture(renderer, "assets/menu.png");
+    if (!bg) {
+        SDL_Log("Failed to load end screen background: %s", SDL_GetError());
+        return;
+    }
+    SDL_RenderTexture(renderer, bg, NULL, NULL);
+    SDL_DestroyTexture(bg);
+
+    TTF_Font* credits_font = TTF_OpenFont("external/Open_Sans/static/OpenSans-Regular.ttf", 12);
+    if (!credits_font) {
+        SDL_Log("No font loaded. Cannot render credits.");
+        return;
+    }
+    
+    SDL_Color original_text_color = menu_ui.text_color;
+
+    std::vector<std::string> credits_text = {
+        "",
+        "",
+        " ",
+        "",
+        "",
+        "IT SEEM LIKE YOU ARE NOT WORTHY",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Press ALT+F4 to ehe"
+    };
+
+    int x = 50;
+    int y = 20;
+    for (const auto& line : credits_text) {
+
+
+        menu_ui.text_color = { 0, 0, 0, 255 }; 
+
+
+        SDL_Surface* surface = TTF_RenderText_Solid(credits_font, line.c_str(), 0, menu_ui.text_color);
+        if (!surface) continue;
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (!texture) { SDL_DestroySurface(surface); continue; }
+        SDL_FRect dest = { (float)x, (float)y, (float)surface->w, (float)surface->h };
+        SDL_RenderTexture(renderer, texture, NULL, &dest);
+        y += 30; 
+        SDL_DestroyTexture(texture);
+        SDL_DestroySurface(surface);
+    }
+   
     menu_ui.text_color = original_text_color;
     TTF_CloseFont(credits_font);
 }

@@ -6,7 +6,6 @@
 #include "entity.h"
 #include "player.h"
 #include "map.h"
-#include "map2.h"
 #include "camera.h"
 #include "monster1.h"
 #include "battle.h"
@@ -92,7 +91,7 @@ void update() {
 
 void render() {
 	if (current_game_state ) {
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Default background for other states
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
 		SDL_RenderClear(renderer);
 	}
 
@@ -107,7 +106,7 @@ void render() {
 		render_credits_ui(renderer); 
 		break;
 	case STATE_INIT_GAME:
-		// Render initial game scene.  This might be a loading screen, or the initial map.
+		
 		break;
 	case STATE_INGAME:
 		if (is_in_battle()) {
@@ -132,6 +131,10 @@ void render() {
 		break;
 	case END_GAME_WON:
 		render_end_game( renderer);
+		break;
+	case END_GAME_LOST:
+		render_end_game_lost(renderer);
+		break;
 	default:
 		break;
 	}
@@ -165,7 +168,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 
 
 	init_music();
-	//play_music("assets/OCTOPATH TRAVELER - opening menu - .mp3");
+	
 	mapInstance.loadMap(0, renderer);
 	PLAYER.setMap(&mapInstance);
 	init_player(renderer);
@@ -192,16 +195,16 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 
 	switch (current_game_state) {
 	case STATE_MAIN_MENU:
-		update_menu_ui(event); // Pass the event to the menu update function
+		update_menu_ui(event); 
 		break;
 	case STATE_OPTIONS_MENU:
-		update_options_ui(renderer,window,event); // Pass the event to the menu update function
+		update_options_ui(renderer,window,event); 
 		break;
 	case STATE_CREDITS:
 		update_credits_ui(event);
 		break;
 	case STATE_INIT_GAME:
-		// Handle events specific to the initial game state (if any)
+		
 		break;
 	case STATE_INGAME:
 		if (event->type == SDL_EVENT_KEY_DOWN) {
@@ -212,7 +215,7 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 					return SDL_APP_CONTINUE;
 				}
 
-				// Toggle inventory open/close
+				
 				if (event->key.key == SDLK_I) {
 					if (in_game_state == InGameState::INVENTORY) {
 						in_game_state = InGameState::NORMAL;
@@ -252,7 +255,7 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 		}
 		break;
 	case STATE_PAUSE_MENU:
-		update_pause_menu_ui(event); // Handle pause menu events
+		update_pause_menu_ui(event); 
 		break;
 	case STATE_QUIT:
 		return SDL_APP_SUCCESS;
@@ -271,8 +274,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
 	if (current_game_state != STATE_QUIT) {
 		
-		///frame_count++;
-		///SDL_Log("--- Frame: %d ---", frame_count);
+		
 		update();
 		update_game_state(delta_time);
 		render();

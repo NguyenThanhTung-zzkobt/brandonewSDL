@@ -8,8 +8,8 @@
  cute_tiled_tileset_t* tileset;
 static Texture* texture;
 static Map* activeMapInstance = nullptr;
-
-
+bool trigger_teleport_next_map = true;
+int current_map_id = 0;
 
 
 static void cleanup_map() {
@@ -44,13 +44,13 @@ static void render(SDL_Renderer* renderer) {
 			continue;
 		}
 
-		// Draw the tiles normally
+		
 		for (int i = 0; i < map->height; i++) {
 			for (int j = 0; j < map->width; j++) {
 				int tile_index = i * map->width + j;
 
 				int tile_id = temp_layer->data[tile_index];
-				//SDL_Log("Tile ID at index (%d, %d): %d", j, i, tile_id);
+
 				if (tile_id == 0) continue;
 
 				Texture* temp_texture = texture;
@@ -91,7 +91,7 @@ static void render(SDL_Renderer* renderer) {
 			}
 		}
 
-		// Draw collision overlay if this is the collision layer
+		
 		if (strcmp(temp_layer->name.ptr, "Collision") == 0 && activeMapInstance) {
 			for (int y = 0; y < map->height; ++y) {
 				for (int x = 0; x < map->width; ++x) {
@@ -240,17 +240,17 @@ void Map::processCollisionLayer(cute_tiled_layer_t* layer) {
 		return;
 	}
 
-	collisionData.resize(layer->height);  // Rows (Y-axis)
+	collisionData.resize(layer->height); 
 	//SDL_Log("collisionData.resize to %zu rows", collisionData.size());
 	for (int i = 0; i < layer->height; ++i) {
-		collisionData[i].resize(layer->width);  // Columns (X-axis)
+		collisionData[i].resize(layer->width);  
 		//SDL_Log("Row %d resized to %zu columns", i, collisionData[i].size());
 
 	}
 	for (int y = 0; y < layer->height; ++y) {
 		for (int x = 0; x < layer->width; ++x) {
-			int data = layer->data[y * layer->width + x]; // Read data from the Tiled layer
-			collisionData.at(y).at(x) = (data != 0) ? 1 :0	; // Assign it to our vector
+			int data = layer->data[y * layer->width + x]; 
+			collisionData.at(y).at(x) = (data != 0) ? 1 :0	; 
 			//SDL_Log("Tile (%d, %d) -> Collision Value: %d", x, y, data);
 		}
 	}
@@ -301,16 +301,19 @@ void Map::loadMap(int map_id, SDL_Renderer* renderer) {
 	for (int i = 0; i < entities_count; ++i) {
 		if (i == find_entity("bomberplant") || i == find_entity("phantom")) {
 			destroy_entity(i);
-			i--; // Important: Adjust index after destroying
+			i--; 
 		}
 	}
 	switch (map_id) {
 	case 0:
 		map_path = "tiled/map.json";
+		current_map_id = 0;
 		break;
 	case 1:
 		map_path = "tiled/castle1.json";
 		PLAYER.entity.set_position(222, 257);
+		current_map_id = 1;
+		trigger_teleport_next_map = false;
 		break;
 
 	default:
@@ -321,11 +324,13 @@ void Map::loadMap(int map_id, SDL_Renderer* renderer) {
 	int map_new_index = find_entity("map");
 	swap_entities(0, map_new_index);
 	init_monster1(renderer);
-	for (int i = 0; i < entities_count; ++i) {
-		if (i == find_entity("bomberplant")) {
-			destroy_entity(i);
-			i--; // Important: Adjust index after destroying
+	if (map_id == 1) {
+		for (int i = 0; i < entities_count; ++i) {
+			if (i == find_entity("bomberplant")) {
+				destroy_entity(i);
+				i--; 
+			}
 		}
+		mapInstance.currentMap = map_id;
 	}
-	mapInstance.currentMap = map_id;
 }

@@ -23,7 +23,7 @@ struct StatusEffect {
     int cursed_count_down = 0;
 };
 
-class Entity { // Changed from struct to class
+class Entity { 
 public:
     char name[MAX_NAME_LENGTH];
     SDL_FPoint position;
@@ -43,7 +43,7 @@ public:
 
     virtual ~Entity() {};
 
-    void (*cleanup)(void) = nullptr; // Initialize function pointers to nullptr
+    void (*cleanup)(void) = nullptr; 
     void (*handle_events)(SDL_Event*) = nullptr;
     void (*update)(float) = nullptr;
     void (*render)(SDL_Renderer*) = nullptr;

@@ -72,9 +72,9 @@ bool Player::checkCollision(float x, float y) {
 
 	for (int ty = top; ty <= bottom; ++ty) {
 		for (int tx = left; tx <= right; ++tx) {
-			// Bounds check
+			
 			if (tx < 0 || ty < 0 || tx >= map_ref->getWidth() || ty >= map_ref->getHeight()) {
-				return true; // Treat out-of-bounds as solid
+				return true; 
 			}
 
 			if (map_ref->getCollisionData(tx, ty) != 0) {
@@ -96,52 +96,52 @@ void Player::cleanup() {
 
 void Player::update(float delta_time) {
 	const Uint8* keyboard_state = (const Uint8*)SDL_GetKeyboardState(NULL);
-	bool moved = false; // <<--- Thêm cờ kiểm tra di chuyển
-	// Vertical movement
+	bool moved = false; // 
+	
 	if (keyboard_state[SDL_SCANCODE_W]) {
 		float new_y = PLAYER.position.y - movement_speed * delta_time;
-		// Check collision on both axes (horizontal and vertical)
+		
 		if (!PLAYER.checkCollision(PLAYER.position.x, new_y)) {
 			//SDL_Log("Player Update: >>> Trying to set animation: walk_up");
 			PLAYER.position.y = new_y;
-			//sprite_portion = { 17, 14 , 15 ,18 };
-			PLAYER.animator.setAnimation("walk_up"); // <<--- THÊM DÒNG NÀY
-			moved = true; // <<--- Đánh dấu đã di chuyển
+			
+			PLAYER.animator.setAnimation("walk_up"); 
+			moved = true; 
 			SDL_Log("Player Position: x=%.2f, y=%.2f", PLAYER.position.x, PLAYER.position.y);
 		}
 	}
 	if (keyboard_state[SDL_SCANCODE_S]) {
 		float new_y = PLAYER.position.y + movement_speed * delta_time;
-		// Check collision on both axes (horizontal and vertical)
+		
 		if (!PLAYER.checkCollision(PLAYER.position.x, new_y)) {
 			PLAYER.position.y = new_y;
 			//sprite_portion = { 17, 14 , 15 ,18 };
-			PLAYER.animator.setAnimation("walk_down"); // <<--- THÊM DÒNG NÀY
-			moved = true; // <<--- Đánh dấu đã di chuyển
+			PLAYER.animator.setAnimation("walk_down"); 
+			moved = true; 
 			SDL_Log("Player Position: x=%.2f, y=%.2f", PLAYER.position.x, PLAYER.position.y);
 		}
 	}
 
-	// Horizontal movement
+
 	if (keyboard_state[SDL_SCANCODE_A]) {
 		float new_x = PLAYER.position.x - movement_speed * delta_time;
-		// Check collision on both axes (horizontal and vertical)
+		
 		if (!PLAYER.checkCollision(new_x, PLAYER.position.y)) {
 			PLAYER.position.x = new_x;
 			//sprite_portion = { 17, 14 , 15 ,18 };
-			PLAYER.animator.setAnimation("walk_left"); // <<--- THÊM DÒNG NÀY
-			moved = true; // <<--- Đánh dấu đã di chuyển
+			PLAYER.animator.setAnimation("walk_left"); 
+			moved = true; // 
 			SDL_Log("Player Position: x=%.2f, y=%.2f", PLAYER.position.x, PLAYER.position.y);
 		}
 	}
 	if (keyboard_state[SDL_SCANCODE_D]) {
 		float new_x = PLAYER.position.x + movement_speed * delta_time;
-		// Check collision on both axes (horizontal and vertical)
+		
 		if (!PLAYER.checkCollision(new_x, PLAYER.position.y)) {
 			PLAYER.position.x = new_x;
 			//sprite_portion = { 17, 14 , 15 ,18 };
-			PLAYER.animator.setAnimation("walk_right"); // <<--- THÊM DÒNG NÀY
-			moved = true; // <<--- Đánh dấu đã di chuyển
+			PLAYER.animator.setAnimation("walk_right"); 
+			moved = true; //
 			//SDL_Log("Address of PLAYER in movement code: %p", (void*)&PLAYER);
 			SDL_Log("Player Position: x=%.2f, y=%.2f", PLAYER.position.x, PLAYER.position.y);
 		}
@@ -175,17 +175,17 @@ void Player::render(SDL_Renderer* renderer) {
 	float final_x = camera.w / 2 - sprite_size.w / 2;
 	float final_y = camera.h / 2 - sprite_size.h / 2;
 
-	if (camera.x <= 0) final_x =PLAYER.position.x - sprite_size.w / 2;
+	if (camera.x <= 0) final_x = PLAYER.position.x - sprite_size.w / 2;
 	if (camera.y <= 0) final_y = PLAYER.position.y - sprite_size.h / 2;
 
 	if (camera.x + camera.w >= 420) final_x = PLAYER.position.x - (420 - camera.w) - sprite_size.w / 2;
 	if (camera.y + camera.h >= 240) final_y = PLAYER.position.y - (240 - camera.h) - sprite_size.h / 2;
 
-	SDL_FRect PLAYER_rect = { 
+	SDL_FRect PLAYER_rect = {
 		PLAYER.position.x - camera.x
-		, PLAYER.position.y - camera.y 
+		, PLAYER.position.y - camera.y
 		, sprite_size.w
-		, sprite_size.h 
+		, sprite_size.h
 	};
 
 	PLAYER.animator.applyTo(sprite_portion);
@@ -198,20 +198,19 @@ void Player::render(SDL_Renderer* renderer) {
 	float top = (float)(PLAYER.position.y / TILE_HEIGHT);
 	float bottom = (float)((PLAYER.position.y + sprite_size.h - 1) / TILE_HEIGHT);
 
-	for (int y = top; y <= bottom; ++y) {
-		for (int x = left; x <= right; ++x) {
-			SDL_FRect tileBox = {
-				x * TILE_WIDTH - camera.x,
-				y * TILE_HEIGHT - camera.y,
-				(float)TILE_WIDTH,
-				(float)TILE_HEIGHT
-			};
+	///for (int y = top; y <= bottom; ++y) {
+		//for (int x = left; x <= right; ++x) {
+			//SDL_FRect tileBox = {
+				//x * TILE_WIDTH - camera.x,
+				//y * TILE_HEIGHT - camera.y,
+				//(float)TILE_WIDTH,
+				//(float)TILE_HEIGHT
+			//};
 
-			SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100); // semi-transparent green
-			SDL_RenderRect(renderer, &tileBox);
-		}
-	}
-
+			//SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100); 
+			//SDL_RenderRect(renderer, &tileBox);
+		//}
+	//}
 }
 
 void init_player(SDL_Renderer* renderer) {
@@ -227,7 +226,8 @@ void init_player(SDL_Renderer* renderer) {
 
 	PLAYER.animator.setTexture(PLAYER.texture);
 	PLAYER.animator.loadAnimations("assets/Char_Sprites/player_animations.txt");
-	PLAYER.animator.setAnimation("walk_down"); // animation mặc định
+	PLAYER.animator.setAnimation("walk_down"); 
+
 
 	PLAYER.entity.position = PLAYER.position;
 	PLAYER.entity.MY_LEVEL = PLAYER.MY_LEVEL;
@@ -274,9 +274,9 @@ void reload_player_texture(SDL_Renderer* renderer) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load player texture: %s", SDL_GetError());
 	}
 	else {
-		// Quan trọng: Cập nhật lại texture cho animator sau khi reload
+		
 		PLAYER.animator.setTexture(PLAYER.texture);
-		SDL_SetTextureScaleMode(PLAYER.texture, SDL_SCALEMODE_NEAREST); // Đặt lại scale mode
+		SDL_SetTextureScaleMode(PLAYER.texture, SDL_SCALEMODE_NEAREST);
 	}
 }
 
@@ -337,13 +337,13 @@ void useItem(int itemID, std::map<int, Item>& itemMap) {
 		const Item& item = it->second;
 		SDL_Log("Using item: %s", item.name.c_str());
 
-		if (item.id == 1) { // Healing potion
-			PLAYER.entity.current_hp += 20; // or however much it heals
+		if (item.id == 1) { 
+			PLAYER.entity.current_hp += 20; 
 		}
 		else if (item.id == 2) {
-			PLAYER.entity.active_status = {}; // Remove status effect
+			PLAYER.entity.active_status = {}; 
 		}
-		// ... other effects
+		
 	}
 	else {
 		SDL_Log("Cannot use unknown item ID: %d", itemID);
@@ -399,12 +399,12 @@ int Player::getItemID(const std::string & itemName, const std::map<int, Item>&it
 			return pair.first;
 		}
 	}
-	return -1; // Return -1 to indicate not found
+	return -1; 
 }
 
 
 void update_game_state(float delta_time) {
-	//SDL_Log("Address of PLAYER in update_game_state: %p", (void*)&PLAYER);
+	
 	float px = PLAYER.position.x;
 	float py = PLAYER.position.y;
 

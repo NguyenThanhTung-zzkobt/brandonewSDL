@@ -38,16 +38,16 @@ void init_pause_menu_ui(SDL_Renderer* renderer) {
     }
      SDL_Log(" created texture pause");
 
-    // Set the texture as the rendering target.  This is needed before SDL_FillSurfaceRect.
+    
     SDL_SetRenderTarget(renderer, pause_menu_texture);
 
-    // Set the blend mode for the texture.  This is essential for alpha to work.
+    
     SDL_SetTextureBlendMode(pause_menu_texture, SDL_BLENDMODE_BLEND);
 
-    // Create a semi-transparent black color.
+    
     Uint32 color = SDL_MapRGBA(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32),NULL, 0, 0, 0, 128);
 
-    // Create a surface.
+    
     SDL_Surface* pause_surface = SDL_CreateSurface(715, 510, SDL_PIXELFORMAT_RGBA32);
       if (!pause_surface) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateSurface Error: %s", SDL_GetError());
@@ -66,7 +66,7 @@ void init_pause_menu_ui(SDL_Renderer* renderer) {
 
     SDL_DestroySurface(pause_surface);
     SDL_DestroyTexture(temp_texture);
-    SDL_SetRenderTarget(renderer, NULL); // VERY IMPORTANT:  Reset the render target!
+    SDL_SetRenderTarget(renderer, NULL); 
 
     SDL_Log("Pause menu UI initialized.");
 }
@@ -110,7 +110,7 @@ void render_pause_menu_ui(SDL_Renderer* renderer) {
         SDL_FRect dest = { (float)x, (float)(y + i * 30), (float)surface->w, (float)surface->h };
 
         if (i == pause_ui.pause_select) {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 150); // yellow highlight
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 150); 
             SDL_FRect highlight = { dest.x - 5, dest.y - 2, dest.w + 10, dest.h + 4 };
             SDL_RenderFillRect(renderer, &highlight);
         }

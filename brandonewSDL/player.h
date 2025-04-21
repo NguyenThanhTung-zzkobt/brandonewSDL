@@ -32,7 +32,7 @@ public:
     StatusEffect active_status;
     int MY_LEVEL;
 
-    std::map<int, Item> item_data; // Ensure Item is defined
+    std::map<int, Item> item_data; 
     std::vector<std::string> weapons;
     std::vector<int> inventory;
 
@@ -75,11 +75,13 @@ void init_player(SDL_Renderer* renderer);
 extern Player PLAYER;
 
 struct TriggerArea {
-    float x;       // X position of the area's top-left corner (map coordinates)
-    float y;       // Y position of the area's top-left corner (map coordinates)
-    float width;   // Width of the area in pixels
-    float height;  // Height of the area in pixels
-    bool triggered; // Flag to indicate if the trigger has already occurred
+    float x;       
+    float y;      
+    float width;   
+    float height;  
+    bool triggered; 
 };
 
 void update_game_state(float delta_time);
+
+extern bool map_transition_triggered;

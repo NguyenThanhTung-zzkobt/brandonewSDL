@@ -60,9 +60,6 @@
     <ClCompile Include="animated.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="map2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\Char_Sprites\char_spritesheet.png">
@@ -140,9 +137,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="animated.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="map2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -54,7 +54,7 @@ void draw_health_bar(SDL_Renderer* renderer, int x, int y, int width, int height
 }
 
 void draw_battle_ui(SDL_Renderer* renderer, const Entity* Player, const Entity* Monster) {
-    TTF_Font* font = battle_ui.font; // Use the battle UI font
+    TTF_Font* font = battle_ui.font; 
     SDL_Color textColor = { 255, 255, 255, 255 };
     SDL_Texture* player_name_texture = nullptr;
     SDL_Texture* monster_name_texture = nullptr;
@@ -133,7 +133,7 @@ void render_battle_ui(SDL_Renderer* renderer) {
         SDL_FRect dest = { (float)x, (float)(y + i * line_spacing), (float)surface->w, (float)surface->h };
 
         if (i == battle_ui.selected_option) {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 150); // highlight
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 150); 
             SDL_FRect highlight = { dest.x - 5, dest.y - 2, dest.w + 10, dest.h + 4 };
             SDL_RenderFillRect(renderer, &highlight);
         }
@@ -145,10 +145,10 @@ void render_battle_ui(SDL_Renderer* renderer) {
 
     
     if (battle_ui.selected_option == 1 && current_ui_mode == BattleUIMode::WEAPON_SELECT) {
-        int submenu_x = x + 150;  // Shift to the right
-        int submenu_y = y + (0 * line_spacing);  // Align with "Attack"
+        int submenu_x = x + 150;  
+        int submenu_y = y + (0 * line_spacing);  
         if (weapon_options.empty()) {
-            weapon_options = PLAYER.getWeapons(); // Copy the weapons from the player
+            weapon_options = PLAYER.getWeapons(); 
             if (weapon_options.empty())
             {
                 SDL_Log("weapon_options is empty");
@@ -285,12 +285,12 @@ void update_battle_ui(const SDL_Event* event) {
                     battle_ui.selected_option = (battle_ui.selected_option + 1) % battle_ui.options.size();
                     break;
                 case SDLK_RIGHT:
-                    if (battle_ui.selected_option == 1) { // Weapon option
+                    if (battle_ui.selected_option == 1) { 
                         current_ui_mode = BattleUIMode::WEAPON_SELECT;
                         weapon_options_index = 0;
 
                     }
-                    if (battle_ui.selected_option == 2) { // Weapon option
+                    if (battle_ui.selected_option == 2) { 
                         current_ui_mode = BattleUIMode::ITEM_SELECT;
                         
                         item_options_index = 0;
@@ -307,7 +307,7 @@ void update_battle_ui(const SDL_Event* event) {
 
                         if (current_enemy && current_enemy->current_hp <= 0) {
                             end_battle_won(current_enemy);
-                            return; // Early exit to avoid using deleted enemy
+                            return; 
                         }
 
                         current_turn = MONSTER_TURN;
@@ -348,7 +348,7 @@ void update_battle_ui(const SDL_Event* event) {
         SDL_Log("Chosen action: %d", monster_action);
         switch (monster_action) {
         case NORMAL_ATTACK:
-            if (current_enemy != nullptr) { // Add null check here
+            if (current_enemy != nullptr) { 
 
                 PLAYER.entity.current_hp -= current_enemy->attack_power;
                 SDL_Log("Monster used NORMAL_ATTACK!");
@@ -358,7 +358,7 @@ void update_battle_ui(const SDL_Event* event) {
             }
             break;
         case SPIKE_ATTACK:
-            if (current_enemy != nullptr) { // Add null check here
+            if (current_enemy != nullptr) { 
                 PLAYER.entity.current_hp -= current_enemy->attack_power + 5;
                 SDL_Log("Monster used SPIKE_ATTACK!");
             }
@@ -367,7 +367,7 @@ void update_battle_ui(const SDL_Event* event) {
             }
             break;
         case POISON_INFECTION:
-            if (current_enemy != nullptr) { // Add null check here
+            if (current_enemy != nullptr) { 
                 execute_poison_infection(current_enemy, &(PLAYER.entity));
                 SDL_Log("Monster used POISON_INFECTION!");
             }
@@ -376,7 +376,7 @@ void update_battle_ui(const SDL_Event* event) {
             }
             break;
         case SOUL_STEAL:
-            if (current_enemy != nullptr) { // Add null check here
+            if (current_enemy != nullptr) { 
                 PLAYER.entity.current_hp -= current_enemy->attack_power;
                 current_enemy->current_hp += current_enemy->attack_power;
                 SDL_Log("Monster used SOUL_STEAL!");
@@ -386,7 +386,7 @@ void update_battle_ui(const SDL_Event* event) {
             }
             break;
         case CURSED:
-            if (current_enemy != nullptr) { // Add null check here
+            if (current_enemy != nullptr) { 
                 execute_cursed(current_enemy, &(PLAYER.entity));
                 SDL_Log("Monster used CURSED!");
             }
@@ -419,9 +419,9 @@ void cleanup_battle_ui() {
 
 void trigger_weapon_ui(SDL_Renderer* renderer) {
     SDL_Log("trigger_weapon_ui called");
-    // Initialize the static vector only once
+   
     if (weapon_options.empty()) {
-        weapon_options = PLAYER.getWeapons(); // Copy the weapons from the player
+        weapon_options = PLAYER.getWeapons(); 
         if (weapon_options.empty())
         {
             SDL_Log("weapon_options is empty");
@@ -431,10 +431,10 @@ void trigger_weapon_ui(SDL_Renderer* renderer) {
 
     int x = 70;
     int y = 100;
-    SDL_Log("weapon_options.size(): %zu", weapon_options.size()); //check size
-    for (size_t i = 0; i < weapon_options.size(); ++i) { // Use the static vector
+    SDL_Log("weapon_options.size(): %zu", weapon_options.size()); 
+    for (size_t i = 0; i < weapon_options.size(); ++i) { 
         const std::string& option = weapon_options[i];
-        SDL_Log("Rendering option: %s at index %zu", option.c_str(), i); // Log each option
+        SDL_Log("Rendering option: %s at index %zu", option.c_str(), i); 
 
         SDL_Surface* surface = TTF_RenderText_Solid(battle_ui.font, option.c_str(), 0, battle_ui.text_color);
         if (!surface) {
@@ -452,7 +452,7 @@ void trigger_weapon_ui(SDL_Renderer* renderer) {
         SDL_FRect dest = { (float)x, (float)(y + i * 30), (float)surface->w, (float)surface->h };
         SDL_Log("Rendering at: x=%f, y=%f, w=%f, h=%f", dest.x, dest.y, dest.w, dest.h);
 
-        if (i == weapon_options_index) { // Use the static index
+        if (i == weapon_options_index) { 
             SDL_SetRenderDrawColor(renderer, 255, 255, 0, 150);
             SDL_FRect highlight = { dest.x - 5, dest.y - 2, dest.w + 10, dest.h + 4 };
             SDL_RenderFillRect(renderer, &highlight);
@@ -464,7 +464,7 @@ void trigger_weapon_ui(SDL_Renderer* renderer) {
         SDL_DestroySurface(surface);
     }
     SDL_Log("Weapons rendered");
-    //SDL_Log("weapon_options_index: %d", weapon_options_index); //for debug
+    //SDL_Log("weapon_options_index: %d", weapon_options_index); 
 }   
 
 
@@ -492,9 +492,9 @@ void update_weapon_options_ui(SDL_Event* event) {
             PLAYER.selected_weapon = weapon_options[weapon_options_index];
             SDL_Log("Selected weapon: %s", PLAYER.selected_weapon.c_str());
 
-            // Return to main menu after choosing
+            
             current_ui_mode = BattleUIMode::MAIN;
-            //weapon_options.clear();
+            
             break;
         case SDLK_ESCAPE:
             current_ui_mode = BattleUIMode::MAIN;

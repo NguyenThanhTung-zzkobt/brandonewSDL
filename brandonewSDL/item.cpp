@@ -39,11 +39,11 @@ void itemUsage(int itemId, std::map<int, Item> itemMap) {
 	auto it = itemMap.find(itemId);
 	if (it != itemMap.end()) {
 		const Item& item = it->second;
-		SDL_Log("Item: %s\n", item.name.c_str()); // Corrected
-		//  Add specific usage logic based on item ID.
+		SDL_Log("Item: %s\n", item.name.c_str()); 
+		
 		switch (itemId) {
-		case 1: // Healing potion
-			SDL_Log("  You drink the healing potion.  You feel better!"); // Corrected
+		case 1: 
+			SDL_Log("  You drink the healing potion.  You feel better!"); 
 			if (PLAYER.entity.current_hp + 50 >= PLAYER.entity.max_hp) {
 				PLAYER.entity.current_hp = PLAYER.entity.max_hp;
 				SDL_Log("  HP increased  to %.2f", PLAYER.entity.current_hp);
@@ -71,16 +71,16 @@ void itemUsage(int itemId, std::map<int, Item> itemMap) {
 			PLAYER.removeItem(3, itemMap);
 			break;
 		case 4: // Smol mixture
-			SDL_Log(" Something happened but you did not know what it is."); // Corrected
+			SDL_Log(" Something happened but you did not know what it is."); 
 			PLAYER.removeItem(4, itemMap);
 			break;
 		default:
-			SDL_Log("  No special action for this item."); // Corrected
+			SDL_Log("  No special action for this item.");
 			break;
 		}
 	}
 	else {
-		SDL_Log("Item ID %d not found!", itemId); // Corrected
+		SDL_Log("Item ID %d not found!", itemId); 
 	}
 }
 

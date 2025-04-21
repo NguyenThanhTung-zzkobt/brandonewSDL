@@ -24,8 +24,7 @@ void Animated::loadAnimations(const std::string& file) {
     Animation* currentAnim = nullptr;
 
     while (std::getline(infile, line)) {
-        if (line.empty() || line[0] == '#') continue;  // ✅ Bỏ qua dòng trống và dòng comment
-
+        if (line.empty() || line[0] == '#') continue;  
         std::istringstream iss(line);
         std::string token;
         iss >> token;
@@ -38,7 +37,7 @@ void Animated::loadAnimations(const std::string& file) {
             animations[name].loop = (loop_str == "true");
             currentAnim = &animations[name];
 
-            SDL_Log("Loaded animation: %s (loop=%s)", name.c_str(), loop_str.c_str());  // ✅ Log để kiểm tra
+            SDL_Log("Loaded animation: %s (loop=%s)", name.c_str(), loop_str.c_str());  
         }
         else if (token == "frame" && currentAnim) {
             int x, y, w, h;

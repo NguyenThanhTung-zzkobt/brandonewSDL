@@ -10,7 +10,7 @@ std::string filename = "my_save_game.dat";
 
 void save_game(const std::string& filename) {
     SDL_Log("Saving game to %s", filename.c_str());
-    // Populate the SaveData structure
+    
     SaveData data;
     data.player_x = PLAYER.position.x;
     data.player_y = PLAYER.position.y;
@@ -21,14 +21,14 @@ void save_game(const std::string& filename) {
     data.camera_y = camera.y;
     data.player_inventory = PLAYER.inventory;
 
-    // Open file for writing in binary mode
+    
     SDL_IOStream* file = SDL_IOFromFile(filename.c_str(), "wb");
     if (!file) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to open file for writing: %s", SDL_GetError());
         return;
     }
 
-    // Write fixed-size data
+    
     if (SDL_WriteIO(file, &data.player_x, sizeof(data.player_x)) != sizeof(data.player_x) ||
         SDL_WriteIO(file, &data.player_y, sizeof(data.player_y)) != sizeof(data.player_y) ||
         SDL_WriteIO(file, &data.player_hp, sizeof(data.player_hp)) != sizeof(data.player_hp) ||
@@ -95,7 +95,7 @@ void load_game(const std::string& filename, SDL_Renderer* renderer) {
 
     SDL_CloseIO(file);
 
-    // Load into game state
+
     PLAYER.position.x = player_x;
     PLAYER.position.y = player_y;
     PLAYER.current_hp = player_hp;

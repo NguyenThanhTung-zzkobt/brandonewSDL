@@ -24,7 +24,7 @@ void start_battle(Monster1* enemy) {
 
     
 
-    // Optional: pause other systems (like map movement)
+    
     SDL_Log("Battle started!");
 
     if (strcmp(current_enemy->name, "phantom") == 0) {
@@ -55,7 +55,7 @@ void render_battle(SDL_Renderer* renderer) {
 
     // Render basic UI: enemy/player HP, background, etc.
     //Entity* PLAYER_entity = &entities[find_entity("PLAYER")];
-    draw_battle_ui(renderer, &PLAYER.entity, current_enemy); // custom UI drawing
+    draw_battle_ui(renderer, &PLAYER.entity, current_enemy); 
     render_battle_ui(renderer);
     //trigger_weapon_ui(renderer);
 }
@@ -67,8 +67,9 @@ void end_battle_lost(Entity* current_enemy) {
     play_music("assets/map1.mp3");
     cleanup_battle_ui();
     current_battle_state = BATTLE_NONE;
+    current_game_state = END_GAME_LOST;
     current_enemy->cleanup();
-    // Reset the triggered flag of the enemy if it exists
+    
     if (current_enemy != nullptr) {
         SDL_Log("current_enemy ptr = %p", (void*)current_enemy);
         for (auto& monster : monsters) {
@@ -119,7 +120,7 @@ void end_battle_won(Entity * current_enemy) {
     cleanup_battle_ui();
     current_battle_state = BATTLE_NONE;
 
-    // Reset the triggered flag of the defeated enemy if it exists
+   
     if (current_enemy != nullptr) {
         for (auto& monster : monsters) {
             if (&monster.entity == current_enemy) {
@@ -154,12 +155,12 @@ void execute_poison_infection(Entity* attacker, Entity* target) {
     target = &PLAYER.entity;
     if (target) {
         if (target->active_status.type == StatusEffect::POISON) {
-            // If already poisoned, reset the duration
+            
             target->active_status.duration = 3;
             SDL_Log("Player re-infected with POISON! Duration reset.");
         }
         else {
-            // If not already poisoned, apply the effect
+            
             target->active_status.type = StatusEffect::POISON;
             target->active_status.duration = 3;
             target->active_status.damagePerTurn = 15;
@@ -195,12 +196,12 @@ void execute_cursed(Entity* attacker, Entity* target) {
     target = &PLAYER.entity;
     if (target) {
         if (target->active_status.type == StatusEffect::CURSED) {
-            // If already poisoned, reset the duration
+           
             target->active_status.duration = 3;
             SDL_Log("Player re-infected with CURSED! Duration reset.");
         }
         else {
-            // If not already poisoned, apply the effect
+            
             target->active_status.type = StatusEffect::CURSED;
             target->active_status.duration = 3;
             SDL_Log("Player inflicted with CURSED!");

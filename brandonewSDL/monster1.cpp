@@ -7,7 +7,7 @@ std::vector<Monster1> monsters;
 
 
 Monster1 phantom1;
-Monster1 Monster; // Changed 'monster' to 'Monster'
+Monster1 Monster; 
 
 
 void Monster1::update() {
@@ -36,7 +36,7 @@ void Monster1::render(SDL_Renderer* renderer) {
     SDL_FRect dst;
     dst.x = position.x - camera.x; 
     dst.y = position.y - camera.y;
-    dst.w = sprite_portion.w * 2.0f; // Scale if needed
+    dst.w = sprite_portion.w * 2.0f; 
     dst.h = sprite_portion.h * 2.0f;
 
 
@@ -88,7 +88,7 @@ void init_monster1(SDL_Renderer* renderer) {
     monsters.push_back(Monster);
     create_entity(monsters.back().entity);
 
-    //phantom
+  
     phantom1.texture_path = "assets/Enemies_Sprites/Phantom_Sprites/phantom_spritesheet.png";
     phantom1.texture = IMG_LoadTexture(renderer, phantom1.texture_path.c_str());
     if (!phantom1.texture) {

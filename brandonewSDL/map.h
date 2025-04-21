@@ -42,6 +42,8 @@ private:
 
 extern Map mapInstance;
 extern  Map mapInstace2;
+extern int current_map_id;
+extern bool trigger_teleport_next_map;
 
 extern cute_tiled_map_t* map;
 extern cute_tiled_layer_t* layer;

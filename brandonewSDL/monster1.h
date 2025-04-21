@@ -5,8 +5,8 @@
 #include "battle.h"
 #include <vector>
 #include <string>
-#include <cstdlib>   // For rand() and srand()
-#include <ctime>     // For time() to seed the random number generator
+#include <cstdlib>   
+#include <ctime>     
 
 
 

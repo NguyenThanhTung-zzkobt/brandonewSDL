@@ -17,9 +17,9 @@ int menu_select = 0;
 #ifdef DISABLED
 
 void init_music() {
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) { //Initialize the audio subsystem
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) { 
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Init(SDL_INIT_AUDIO) failed: %s\n", SDL_GetError());
-        return; // Important:  Return on error.  Don't continue.
+        return; 
     }
     audiospec.format = MIX_DEFAULT_FORMAT;
     audiospec.channels = MIX_DEFAULT_CHANNELS;
@@ -69,9 +69,9 @@ void cleanup_music() {
 #endif
 
 void init_music() {
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) { //Initialize the audio subsystem
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) { 
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Init(SDL_INIT_AUDIO) failed: %s\n", SDL_GetError());
-        return; // Important:  Return on error.  Don't continue.
+        return; 
     }
     audiospec.format = MIX_DEFAULT_FORMAT;
     audiospec.channels = MIX_DEFAULT_CHANNELS;
@@ -80,7 +80,7 @@ void init_music() {
     if (Mix_OpenAudio(0, &audiospec) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error opening audio: %s\n", SDL_GetError());
         SDL_CloseAudioDevice(0);
-        return; // Important: Return on error
+        return; 
     }
     volume_level = 100;
     Mix_VolumeMusic(volume_level);
@@ -133,20 +133,20 @@ void cleanup_music() {
         Mix_FreeMusic(music);
         music = nullptr;
     }
-    Mix_CloseAudio(); // Close the SDL_Mixer
-    SDL_QuitSubSystem(SDL_INIT_AUDIO); // Quit the audio subsystem.
+    Mix_CloseAudio(); 
+    SDL_QuitSubSystem(SDL_INIT_AUDIO); 
 }
 
 void play_music(const char* filename) {
     if (music) {
-        Mix_FreeMusic(music); //Free the current music
+        Mix_FreeMusic(music); 
         music = nullptr;
     }
 
     music = Mix_LoadMUS(filename);
     if (!music) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load music: %s\n", SDL_GetError());
-        return; // Important:  Return on error.
+        return; 
     }
 
     if (Mix_PlayMusic(music, -1) == -1) {
