@@ -194,7 +194,7 @@ void update_menu_ui(const SDL_Event* event){
                 PLAYER.inventory.clear();           
                 init_monster1(renderer);
                 mapInstance.loadMap(0, renderer); 
-                play_music("assets/map1.mp3");
+                play_music("assets/play_music_you_want_here");
                 switch_game_state(STATE_INIT_GAME, renderer);
                 reset_delta_time();
                 cleanup_menu_ui();
@@ -211,7 +211,7 @@ void update_menu_ui(const SDL_Event* event){
                 map_transition_triggered = false;
                 load_game(filename, renderer);
                 current_game_state = STATE_INGAME;
-                play_music("assets/map1.mp3");
+                play_music("assets/play_music_you_want_here");
                 reset_delta_time();
                 cleanup_menu_ui();
                 if (current_map_id != 1) {
