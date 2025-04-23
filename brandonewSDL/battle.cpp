@@ -28,10 +28,10 @@ void start_battle(Monster1* enemy) {
     SDL_Log("Battle started!");
 
     if (strcmp(current_enemy->name, "phantom") == 0) {
-        play_music("assets/boss_battle.mp3");
+        play_music("assets/play_music_you_want_here");
         return;
     }
-    play_music("assets/battle.mp3");
+    play_music("assets/play_music_you_want_here");
 
 
 }
@@ -64,7 +64,7 @@ void render_battle(SDL_Renderer* renderer) {
 
 
 void end_battle_lost(Entity* current_enemy) {
-    play_music("assets/map1.mp3");
+    play_music("assets/play_music_you_want_here");
     cleanup_battle_ui();
     current_battle_state = BATTLE_NONE;
     current_game_state = END_GAME_LOST;
@@ -89,10 +89,10 @@ void end_battle_lost(Entity* current_enemy) {
     }
 }
 void end_battle_won(Entity * current_enemy) {
-    play_music("assets/map1.mp3");
+    play_music("assets/play_music_you_want_here");
     if (strcmp(current_enemy->name, "phantom") == 0) {
         current_game_state = END_GAME_WON;
-        play_music("assets/end_game.mp3");
+        play_music("assets/play_music_you_want_here");
         return;
     }
 
